@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Known Issues]
 - None. Please feel free to submit an issue via [GitHub](https://github.com/ryanblenis/MeshCentral-ScriptTask) if you find anything.
 
+## [0.0.3] - 2019-12-20
+### Fixed
+- Typo causing installs to think Mongo is not in use
+
 ## [0.0.2] - 2019-12-20
 ### Added
 - Suppressed errors and made a nice error message for those without MongoDB (currently unsupported)

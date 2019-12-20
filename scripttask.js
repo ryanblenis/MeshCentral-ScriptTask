@@ -176,7 +176,7 @@ module.exports.scripttask = function (parent) {
             }
             // default user view (tree)
             vars.scriptTree = 'null';
-            vars.mongoSupport = (obj.meshServer.args.mongo == null) ? false : true;
+            vars.mongoSupport = (obj.meshServer.args.mongodb == null) ? false : true;
             if (vars.mongoSupport === false) { res.render('notSupported', vars); return; }
             obj.db.getScriptTree()
             .then(tree => {
