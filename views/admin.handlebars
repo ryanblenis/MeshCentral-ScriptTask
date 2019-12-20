@@ -1,0 +1,90 @@
+<html>
+<head>
+    <script type="text/javascript" src="scripts/common-0.0.1.js"></script>
+    <script type="text/javascript">
+    var addPluginConfigEx = function() {
+        var config = parent.Q('plugintextinput').value;
+        var parsed = false;
+        try {
+            config = JSON.parse(config);
+            parsed = true;
+        } catch (e) { parent.setDialogMode(2, 'Oops!', 1, null, "Plugin config is not valid JSON"); return; }
+        if (!parsed) return;
+        parent.meshserver.send({ action: 'plugin', plugin: 'devtools', pluginaction: 'addPluginConfig', cfg: config });
+    }
+    var refreshHandlerEx = function() {
+        parent.meshserver.send({ action: 'plugin', plugin: 'devtools', pluginaction: 'refreshPluginHandler' });
+        setTimeout(initPtools, 2000);
+    };
+    var editPluginConfigEx1 = function() {
+        parent.meshserver.send({ action: 'plugin', plugin: 'devtools', pluginaction: 'getPluginConfig', id: parent.Q('dtEditPluginConf').value });
+    };
+    var deletePluginConfigEx = function() {
+        parent.meshserver.send({ action: 'plugin', plugin: 'devtools', pluginaction: 'deletePluginConfig', id: parent.Q('dtDeletePluginConf').value });
+    };
+    var restartServerEx = function() {
+        parent.meshserver.send({ action: 'plugin', plugin: 'devtools', pluginaction: 'restartServer' });
+    }
+    var editPluginConfigEx2 = function() {
+        var config = parent.Q('dtPIConfig').value;
+        var parsed = false;
+        try {
+            config = JSON.parse(config);
+            parsed = true;
+        } catch (e) { parent.setDialogMode(2, 'Oops!', 1, null, "Plugin config is not valid JSON"); return; }
+        parent.meshserver.send({ action: 'plugin', plugin: 'devtools', pluginaction: 'savePluginConfig', id: parent.Q('diPIConfig_id').value, conf: config });
+    };
+    function addPluginConfig() {
+        parent.setDialogMode(2, "Plugin Config JSON", 3, addPluginConfigEx, '<textarea id=plugintextinput style=width:100% />'); 
+        parent.focusTextBox('plugintextinput');
+    }
+    function refreshHandler() {
+        parent.setDialogMode(2, "Refresh Plugin Handler?", 3, refreshHandlerEx, 'Are you sure?');
+    }
+    function editPluginConfig() {
+        var sel = '<select id="dtEditPluginConf">'
+        parent.installedPluginList.forEach((plugin) => {
+            sel += `<option value="${plugin._id}">${plugin.name}</option>`;
+        });
+        sel += '</select>';
+        parent.setDialogMode(2, "Edit which Plugin?", 3, editPluginConfigEx1, sel);
+    }
+    function deletePluginConfig() {
+        var sel = '<select id="dtDeletePluginConf">'
+        parent.installedPluginList.forEach((plugin) => {
+            sel += `<option value="${plugin._id}">${plugin.name}</option>`;
+        });
+        sel += '</select>';
+        parent.setDialogMode(2, "Delete which Plugin?", 3, deletePluginConfigEx, sel);
+    }
+    function restartServer() {
+        parent.setDialogMode(2, "Restart Server?", 3, restartServerEx, 'Are you sure?');
+    }
+    function initPtools() {
+        parent.pluginHandler.devtools.loadEditPluginConfig = function(args, msg) {
+            var conf = msg.conf[0];
+            var id = conf._id;
+            delete conf._id;
+            parent.setDialogMode(2, "Plugin Config: "+conf.name, 3, editPluginConfigEx2, '<input type="hidden" id="diPIConfig_id" value="'+id+'" /><textarea width="500" height="700" id="dtPIConfig">'+JSON.stringify(conf, null, 2)+'</textarea>');
+        };
+    }
+    initPtools();
+    </script>
+</head>
+<style>
+    body {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    }
+    
+</style>
+<body>
+<div id="devToolsAdmin">
+  <br />
+  <a href="#" onclick="addPluginConfig(); return false;">Add plugin config to the database</a><br /><br />
+  <a href="#" onclick="deletePluginConfig(); return false;">Delete a plugin config from the database</a><br /><br />
+  <a href="#" onclick="refreshHandler(); return false;">Refresh PluginHandler</a><br /><br />
+  <a href="#" onclick="editPluginConfig(); return false;">Edit a plugin config</a><br /><br />
+  <a href="#" onclick="restartServer(); return false;">Restart Server</a><br /><br />
+</div>
+</body>
+</html>

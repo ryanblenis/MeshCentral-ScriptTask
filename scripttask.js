@@ -1,0 +1,587 @@
+/** 
+* @description MeshCentral ScriptTask
+* @author Ryan Blenis
+* @copyright 
+* @license Apache-2.0
+*/
+
+"use strict";
+
+module.exports.scripttask = function (parent) {
+    var obj = {};
+    obj.parent = parent;
+    obj.meshServer = parent.parent;
+    obj.db = null;
+    obj.intervalTimer = null;
+    obj.debug = obj.meshServer.debug;
+    obj.exports = [      
+        'onDeviceRefreshEnd',
+        'resizeContent',
+        'historyData'
+    ];
+    
+    obj.resetQueueTimer = function() {
+        clearTimeout(obj.intervalTimer);
+        obj.intervalTimer = setInterval(obj.queueRun, 1 * 60 * 1000); // every minute
+    };
+    
+    obj.server_startup = function() {
+        obj.meshServer.pluginHandler.scripttask_db = require (__dirname + '/db.js').CreateDB(obj.meshServer);
+        obj.db = obj.meshServer.pluginHandler.scripttask_db;
+        // going to be useful for sending out queues to online agents
+        //obj.intervalTimer = setInterval(function() {console.log('array of connected agents is ', Object.keys(obj.meshServer.webserver.wsagents))}, 10000);
+        obj.resetQueueTimer();
+    };
+    
+    obj.onDeviceRefreshEnd = function() {
+        pluginHandler.registerPluginTab({
+            tabTitle: 'ScriptTask',
+            tabId: 'pluginScriptTask'
+        });
+        QA('pluginScriptTask', '<iframe id="pluginIframeScriptTask" style="width: 100%; height: 800px;" scrolling="no" frameBorder=0 src="/pluginadmin.ashx?pin=scripttask&user=1" />');
+    };
+    // may not be needed, saving for later. Can be called to resize iFrame
+    obj.resizeContent = function() {
+        var iFrame = document.getElementById('pluginIframeScriptTask');
+        var newHeight = 800;
+        var sHeight = iFrame.contentWindow.document.body.scrollHeight;
+        if (sHeight > newHeight) newHeight = sHeight;
+        if (newHeight > 1600) newHeight = 1600;
+        iFrame.style.height = newHeight + 'px';
+    };
+    
+    obj.queueRun = function() {
+        var onlineAgents = Object.keys(obj.meshServer.webserver.wsagents);
+        //obj.debug('ScriptTask', 'Queue Running', Date().toLocaleString(), 'Online agents: ', onlineAgents);
+        
+        
+        obj.db.getPendingJobs(onlineAgents)
+        .then((jobs) => {
+            if (jobs.length == 0) return;
+            //@TODO check for a large number and use taskLimiter to queue the jobs
+            jobs.forEach(job => {
+                obj.db.get(job.scriptId)
+                .then((script) => {
+                    script = script[0];
+                    var dispatchTime = Math.floor(new Date() / 1000);
+                    var jObj = { 
+                        action: 'plugin', 
+                        plugin: 'scripttask', 
+                        pluginaction: 'triggerJob',
+                        jobId: job._id,
+                        scriptId: job.scriptId,
+                        replaceVars: job.replaceVars,
+                        scriptHash: script.contentHash,
+                        dispatchTime: dispatchTime
+                    };
+                    //obj.debug('ScriptTask', 'Sending job to agent');
+                    try { 
+                        obj.meshServer.webserver.wsagents[job.node].send(JSON.stringify(jObj));
+                        obj.db.update(job._id, { dispatchTime: dispatchTime });
+                    } catch (e) { }
+                })
+                .catch(e => console.log('PLUGIN: ScriptTask: Could not dispatch job.', e));
+            });
+        })
+        .then(() => {
+            obj.makeJobsFromSchedules();
+            obj.cleanHistory();
+        })
+        .catch(e => { console.log('PLUGIN: ScriptTask: Queue Run Error: ', e); });
+    };
+    
+    obj.cleanHistory = function() {
+        if (Math.round(Math.random() * 100) == 99) {
+            //obj.debug('Plugin', 'ScriptTask', 'Running history cleanup');
+            obj.db.deleteOldHistory();
+        }
+    };
+    
+    obj.downloadFile = function(req, res, user) {
+        var id = req.query.dl;
+        obj.db.get(id)
+        .then(found => {
+          if (found.length != 1) { res.sendStatus(401); return; }
+          var file = found[0];
+          res.setHeader('Content-disposition', 'attachment; filename=' + file.name);
+          res.setHeader('Content-type', 'text/plain');
+          //var fs = require('fs');
+          res.send(file.content);
+        });
+    };
+    
+    obj.updateFrontEnd = function(ids){
+        if (ids.scriptId != null) {
+            var scriptHistory = null;
+            obj.db.getJobScriptHistory(ids.scriptId)
+            .then((sh) => {
+                scriptHistory = sh;
+                return obj.db.getJobSchedulesForScript(ids.scriptId);
+            })
+            .then((scriptSchedule) => {
+                var targets = ['*', 'server-users'];
+                obj.meshServer.DispatchEvent(targets, obj, { action: 'plugin', plugin: 'scripttask', pluginaction: 'historyData', scriptId: ids.scriptId, nodeId: null, scriptHistory: scriptHistory, nodeHistory: null, scriptSchedule: scriptSchedule });
+            });
+        }
+        if (ids.nodeId != null) {
+            var nodeHistory = null;
+            obj.db.getJobNodeHistory(ids.nodeId)
+            .then((nh) => {
+                nodeHistory = nh;
+                return obj.db.getJobSchedulesForNode(ids.nodeId);
+            })
+            .then((nodeSchedule) => {
+                var targets = ['*', 'server-users'];
+                obj.meshServer.DispatchEvent(targets, obj, { action: 'plugin', plugin: 'scripttask', pluginaction: 'historyData', scriptId: null, nodeId: ids.nodeId, scriptHistory: null, nodeHistory: nodeHistory, nodeSchedule: nodeSchedule });
+            });
+        }
+        if (ids.tree === true) {
+            obj.db.getScriptTree()
+            .then((tree) => {
+                var targets = ['*', 'server-users'];
+                obj.meshServer.DispatchEvent(targets, obj, { action: 'plugin', plugin: 'scripttask', pluginaction: 'newScriptTree', tree: tree });
+            });
+        }
+    };
+    
+    obj.handleAdminReq = function(req, res, user) {
+        if ((user.siteadmin & 0xFFFFFFFF) == 1 && req.query.admin == 1) 
+        {
+            // admin wants admin, grant
+            var vars = {};
+            res.render('admin', vars);
+            return;
+        } else if (req.query.admin == 1 && (user.siteadmin & 0xFFFFFFFF) == 0) {
+            // regular user wants admin
+            res.sendStatus(401); 
+            return;
+        } else if (req.query.user == 1) { 
+            // regular user wants regular access, grant
+            if (req.query.dl != null) return obj.downloadFile(req, res, user);
+            var vars = {};
+            
+            if (req.query.edit == 1) { // edit script
+                if (req.query.id == null) return res.sendStatus(401); 
+                obj.db.get(req.query.id)
+                .then((scripts) => {
+                    vars.scriptData = JSON.stringify(scripts[0]);
+                    res.render('scriptedit', vars);
+                });
+                return;
+            } else if (req.query.schedule == 1) {
+                var vars = {};
+                res.render('schedule', vars);
+                return;
+            }
+            // default user view (tree)
+            vars.scriptTree = 'null';
+            obj.db.getScriptTree()
+            .then(tree => {
+              vars.scriptTree = JSON.stringify(tree);
+              res.render('user', vars);
+            });
+            return;
+        } else if (req.query.include == 1) {
+            res.sendFile(__dirname + '/includes/' + req.query.path); // don't freak out. Express covers any path issues.
+            return;
+        }
+        res.sendStatus(401); 
+        return;
+    };
+    
+    obj.historyData = function (message) {
+        if (typeof pluginHandler.scripttask.loadHistory == 'function') pluginHandler.scripttask.loadHistory(message);
+        if (typeof pluginHandler.scripttask.loadSchedule == 'function') pluginHandler.scripttask.loadSchedule(message);
+    };
+    
+    obj.determineNextJobTime = function(s) {
+        var nextTime = null;
+        var nowTime = Math.floor(new Date() / 1000);
+        
+        // special case: we've reached the end of our run
+        if (s.endAt !== null && s.endAt <= nowTime) {
+            return nextTime;
+        }
+
+        switch (s.recur) {
+            case 'once':
+                if (s.nextRun == null) nextTime = s.startAt;
+                else nextTime = null;
+            break;
+            case 'minutes':
+                /*var lRun = s.nextRun || nowTime;
+                if (lRun == null) lRun = nowTime;
+                nextTime = lRun + (s.interval * 60);
+                if (s.startAt > nextTime) nextTime = s.startAt;*/
+                if (s.nextRun == null) { // hasn't run yet, set to start time
+                    nextTime = s.startAt;
+                    break;
+                }
+                nextTime = s.nextRun + (s.interval * 60);
+                if (s.startAt > nextTime) nextTime = s.startAt;
+            break;
+            case 'hourly':
+                if (s.nextRun == null) { // hasn't run yet, set to start time
+                    nextTime = s.startAt;
+                    break;
+                }
+                nextTime = s.nextRun + (s.interval * 60 * 60);
+                if (s.startAt > nextTime) nextTime = s.startAt;
+            break;
+            case 'daily':
+                if (s.nextRun == null) { // hasn't run yet, set to start time
+                    nextTime = s.startAt;
+                    break;
+                }
+                nextTime = s.nextRun + (s.interval * 60 * 60 * 24);
+                if (s.startAt > nextTime) nextTime = s.startAt;
+            break;
+            case 'weekly':
+                var tempDate = new Date();
+                var nowDate = new Date(tempDate.getFullYear(), tempDate.getMonth(), tempDate.getDate());
+                
+                if (s.daysOfWeek.length == 0) {
+                    nextTime = null;
+                    break;
+                }
+                s.daysOfWeek = s.daysOfWeek.map(el => Number(el));
+                var baseTime = s.startAt;
+                //console.log('dow is ', s.daysOfWeek);
+                var lastDayOfWeek = Math.max(...s.daysOfWeek);
+                var startX = 0;
+                //console.log('ldow is ', lastDayOfWeek);
+                if (s.nextRun != null) {
+                    baseTime = s.nextRun;
+                    //console.log('basetime 2: ', baseTime);
+                    if (nowDate.getDay() == lastDayOfWeek) {
+                        baseTime = baseTime + ( s.interval * 604800 ) - (lastDayOfWeek * 86400);
+                        //console.log('basetime 3: ', baseTime);
+                    }
+                    startX = 0;
+                } else if (s.startAt < nowTime) {
+                    baseTime = Math.floor(nowDate.getTime() / 1000);
+                    //console.log('basetime 4: ', baseTime);
+                }
+                //console.log('startX is: ', startX);
+                //var secondsFromMidnight = nowTimeDate.getSeconds() + (nowTimeDate.getMinutes() * 60) + (nowTimeDate.getHours() * 60 * 60);
+                //console.log('seconds from midnight: ', secondsFromMidnight);
+                //var dBaseTime = new Date(0); dBaseTime.setUTCSeconds(baseTime);
+                //var dMidnight = new Date(dBaseTime.getFullYear(), dBaseTime.getMonth(), dBaseTime.getDate());
+                //baseTime = Math.floor(dMidnight.getTime() / 1000);
+                for (var x = startX; x <= 7; x++){
+                    var checkDate = baseTime + (86400 * x);
+                    var d = new Date(0); d.setUTCSeconds(checkDate);
+                    var dm = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+                    
+                    console.log('testing date: ', dm.toLocaleString()); // dMidnight.toLocaleString());
+                    //console.log('if break check :', (s.daysOfWeek.indexOf(d.getDay()) !== -1 && checkDate >= nowTime));
+                    //console.log('checkDate vs nowTime: ', (checkDate - nowTime), ' if positive, nowTime is less than checkDate');
+                    if (s.nextRun == null && s.daysOfWeek.indexOf(dm.getDay()) !== -1 && dm.getTime() >= nowDate.getTime()) break;
+                    if (s.daysOfWeek.indexOf(dm.getDay()) !== -1 && dm.getTime() > nowDate.getTime()) break;
+                    //if (s.daysOfWeek.indexOf(d.getDay()) !== -1 && Math.floor(d.getTime() / 1000) >= nowTime) break;
+                }
+                var sa = new Date(0); sa.setUTCSeconds(s.startAt);
+                var sad = new Date(sa.getFullYear(), sa.getMonth(), sa.getDate());
+                var diff = (sa.getTime() - sad.getTime()) / 1000;
+                nextTime = Math.floor(dm.getTime() / 1000) + diff;
+                //console.log('next schedule is ' + d.toLocaleString());
+            break;
+            default:
+                nextTime = null;
+            break;
+        }
+        
+        if (s.endAt != null && nextTime > s.endAt) nextTime = null; // if the next time reaches the bound of the endAt time, nullify
+        
+        return nextTime;
+    };
+
+    obj.makeJobsFromSchedules = function(scheduleId) {
+        //obj.debug('ScriptTask', 'makeJobsFromSchedules starting');
+        return obj.db.getSchedulesDueForJob(scheduleId)
+        .then(schedules => {
+            //obj.debug('ScriptTask', 'Found ' + schedules.length + ' schedules to process. Current time is: ' + Math.floor(new Date() / 1000));
+            if (schedules.length) {
+                schedules.forEach(s => {
+                    var nextJobTime = obj.determineNextJobTime(s);
+                    var nextJobScheduled = false;
+                    if (nextJobTime === null) {
+                        //obj.debug('ScriptTask', 'Removing Job Schedule for', JSON.stringify(s));
+                        obj.db.removeJobSchedule(s._id);
+                    } else {
+                        //obj.debug('ScriptTask', 'Scheduling Job for', JSON.stringify(s));
+                        obj.db.get(s.scriptId)
+                        .then(scripts => {
+                            // if a script is scheduled to run, but a previous run hasn't completed, 
+                            // don't schedule another job for the same (device probably offline).
+                            // results in the minimum jobs running once an agent comes back online.
+                            return obj.db.getIncompleteJobsForSchedule(s._id)
+                            .then((jobs) => {
+                                if (jobs.length > 0) { /* obj.debug('Plugin', 'ScriptTask', 'Skipping job creation'); */ return Promise.resolve(); }
+                                else { /* obj.debug('Plugin', 'ScriptTask', 'Creating new job'); */ nextJobScheduled = true; return obj.db.addJob( { scriptId: s.scriptId, scriptName: scripts[0].name, node: s.node, runBy: s.scheduledBy, dontQueueUntil: nextJobTime, jobSchedule: s._id } ); }
+                            });
+                        })
+                        .then(() => {
+                            
+                            if (nextJobScheduled) { /* obj.debug('Plugin', 'ScriptTask', 'Updating nextRun time'); */ return obj.db.update(s._id, { nextRun: nextJobTime }); }
+                            else { /* obj.debug('Plugin', 'ScriptTask', 'NOT updating nextRun time'); */ return Promise.resolve(); }
+                        })
+                        .then(() => {
+                            obj.updateFrontEnd( { scriptId: s.scriptId, nodeId: s.node } );
+                        })
+                        .catch((e) => { console.log('PLUGIN: ScriptTask: Error managing job schedules: ', e); });
+                    }
+                });
+            }
+        });
+    };
+    
+    obj.deleteElement = function (command) {
+        var delObj = null;
+        obj.db.get(command.id)
+        .then((found) => {
+          var file = found[0];
+          delObj = {...{}, ...found[0]};
+          return file;
+        })
+        .then((file) => {
+          if (file.type == 'folder') return obj.db.deleteByPath(file.path); //@TODO delete schedules for scripts within folders
+          if (file.type == 'script') return obj.db.deleteSchedulesForScript(file._id);
+          if (file.type == 'jobSchedule') return obj.db.deletePendingJobsForSchedule(file._id);
+        })
+        .then(() => {
+          return obj.db.delete(command.id)
+        })
+        .then(() => {
+          var updateObj = { tree: true };
+          if (delObj.type == 'jobSchedule') {
+              updateObj.scriptId = delObj.scriptId;
+              updateObj.nodeId = delObj.node;
+          }
+          return obj.updateFrontEnd( updateObj );
+        })
+        .catch(e => { console.log('PLUGIN: ScriptTask: Error deleting ', e.stack); });
+    };
+    
+    obj.serveraction = function(command, myparent, grandparent) {
+        switch (command.pluginaction) {
+            case 'addScript':
+                obj.db.addScript(command.name, command.content, command.path, command.filetype)
+                .then(() => {
+                    obj.updateFrontEnd( { tree: true } );
+                });            
+            break;
+            case 'rename':
+              obj.db.update(command.id, { name: command.name })
+              .then(() => {
+                  return obj.db.updateScriptJobName(command.id, command.name);
+              })
+              .then(() => {
+                  obj.updateFrontEnd( { scriptId: command.id, nodeId: command.currentNodeId, tree: true } );
+              });
+            break;
+            case 'move':
+              var toPath = null, fromPath = null, parentType = null;
+              obj.db.get(command.to)
+              .then(found => { // get target data
+                  if (found.length > 0) {
+                    var file = found[0];
+                    toPath = file.path;
+                  } else throw Error('Target destination not found');
+              })
+              .then(() => { // get item to be moved
+                return obj.db.get(command.id);
+              })
+              .then((found) => { // set item to new location
+                  var file = found[0];
+                  if (file.type == 'folder') {
+                    fromPath = file.path;
+                    toPath += '/' + file.name;
+                    parentType = 'folder';
+                    if (file.name == 'Shared' && file.path == 'Shared') throw Error('Cannot move top level directory: Shared');
+                  }
+                  return obj.db.update(command.id, { path: toPath } );
+              })
+              .then(() => { // update sub-items
+                  return obj.db.getByPath(fromPath)
+              })
+              .then((found) => {
+                  if (found.length > 0) {
+                    var proms = [];
+                    found.forEach(f => {
+                      proms.push(obj.db.update(f._id, { path: toPath } ));
+                    })
+                    return Promise.all(proms);
+                  }
+              })
+              .then(() => {
+                return obj.updateFrontEnd( { tree: true } );
+              })
+              .catch(e => { console.log('PLUGIN: ScriptTask: Error moving ', e.stack); });
+            break;
+            case 'newFolder':
+              var parent_path = '';
+              var new_path = '';
+              
+              obj.db.get(command.parent_id)
+              .then(found => {
+                if (found.length > 0) {
+                    var file = found[0];
+                    parent_path = file.path;
+                } else {
+                    parent_path = 'Shared';
+                }
+              })
+              .then(() => {
+                new_path = parent_path + '/' + command.name;
+              })
+              .then(() => {
+                  return obj.db.addFolder(command.name, new_path);
+              })
+              .then(() => {
+                return obj.updateFrontEnd( { tree: true } );
+              })
+              .catch(e => { console.log('PLUGIN: ScriptTask: Error creating new folder ', e.stack); });
+            break;
+            case 'delete':
+              obj.deleteElement(command);
+            break;
+            case 'addScheduledJob':
+                /* { 
+                    scriptId: scriptId, 
+                    node: s, 
+                    scheduledBy: myparent.user.name,
+                    recur: command.recur, // [once, minutes, hourly, daily, weekly, monthly]
+                    interval: x,
+                    daysOfWeek: x, // only used for weekly recur val
+                    // onTheXDay: x, // only used for monthly
+                    startAt: x,
+                    endAt: x,
+                    runCountLimit: x,
+                    lastRun: x,
+                    nextRun: x,
+                    type: "scheduledJob"
+                } */
+                var sj = command.schedule;
+                
+                var sched = {
+                    scriptId: command.scriptId, 
+                    node: null, 
+                    scheduledBy: myparent.user.name,
+                    recur: sj.recur,
+                    interval: sj.interval,
+                    daysOfWeek: sj.dayVals,
+                    startAt: sj.startAt,
+                    endAt: sj.endAt,
+                    lastRun: null,
+                    nextRun: null,
+                    type: "jobSchedule"
+                };
+                var sel = command.nodes;
+                var proms = [];
+                if (Array.isArray(sel)) {
+                  sel.forEach((s) => {
+                    var sObj = {...sched, ...{
+                        node: s
+                    }};
+                    proms.push(obj.db.addJobSchedule( sObj ));
+                  });
+              } else { test.push(sObj);
+                  proms.push(obj.db.addJobSchedule( sObj ));
+                }
+                Promise.all(proms)
+                .then(() => {
+                    obj.makeJobsFromSchedules();
+                    return Promise.resolve();
+                })
+                .catch(e => { console.log('PLUGIN: ScriptTask: Error adding schedules. The error was: ', e); });
+            break;
+            case 'runScript':
+              var scriptId = command.scriptId;
+              var sel = command.nodes;
+              var proms = [];
+              if (Array.isArray(sel)) {
+                sel.forEach((s) => {
+                  proms.push(obj.db.addJob( { scriptId: scriptId, node: s, runBy: myparent.user.name } ));
+                });
+              } else {
+                proms.push(obj.db.addJob( { scriptId: scriptId, node: sel, runBy: myparent.user.name } ));
+              }
+              Promise.all(proms)
+              .then(() => {
+                  return obj.db.get(scriptId);
+              })
+              .then(scripts => {
+                  return obj.db.updateScriptJobName(scriptId, scripts[0].name);
+              })
+              .then(() => {
+                  obj.resetQueueTimer();
+                  obj.queueRun();
+                  obj.updateFrontEnd( { scriptId: scriptId, nodeId: command.currentNodeId } );
+              });
+            break;
+            case 'getScript':
+                //obj.debug('ScriptTask', 'getScript Triggered', JSON.stringify(command));
+                obj.db.get(command.scriptId)
+                .then(script => {
+                    myparent.send(JSON.stringify({ 
+                        action: 'plugin',
+                        plugin: 'scripttask',
+                        pluginaction: 'cacheScript',
+                        nodeid: myparent.dbNodeKey,
+                        rights: true,
+                        sessionid: true,
+                        script: script[0]
+                    }));
+                });
+            break;
+            case 'jobComplete':
+                //obj.debug('ScriptTask', 'jobComplete Triggered', JSON.stringify(command));
+                var jobNodeHistory = null, scriptHistory = null;
+                var jobId = command.jobId, retVal = command.retVal, errVal = command.errVal, dispatchTime = command.dispatchTime;
+                var completeTime = Math.floor(new Date() / 1000);
+                obj.db.update(jobId, {
+                    completeTime: completeTime,
+                    returnVal: retVal,
+                    errorVal: errVal,
+                    dispatchTime: dispatchTime
+                })
+                .then(() => {
+                    return obj.db.get(jobId)
+                    .then(jobs => {
+                        return Promise.resolve(jobs[0].jobSchedule);
+                    })
+                    .then(sId => {
+                        if (sId == null) return Promise.resolve();
+                        return obj.db.update(sId, { lastRun: completeTime } )
+                        .then(() => {
+                            obj.makeJobsFromSchedules(sId);
+                        });
+                    });
+                })
+                .then(() => {
+                    obj.updateFrontEnd( { scriptId: command.scriptId, nodeId: myparent.dbNodeKey } );
+                })
+                .catch(e => { console.log('PLUGIN: ScriptTask: Failed to complete job. ', e); });
+                // update front end by eventing
+            break;
+            case 'loadNodeHistory':
+                obj.updateFrontEnd( { nodeId: command.nodeId } );
+            break;
+            case 'loadScriptHistory':
+                obj.updateFrontEnd( { scriptId: command.scriptId } );
+            break;
+            case 'editScript':
+                obj.db.update(command.scriptId, { type: command.scriptType, name: command.scriptName, content: command.scriptContent })
+                .then(() => {
+                    obj.updateFrontEnd( { scriptId: command.scriptId, tree: true } );
+                });
+            break;
+            default:
+                console.log('PLUGIN: ScriptTask: unknown action');
+            break;
+        }
+    };
+    
+    return obj;
+}
