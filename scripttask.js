@@ -221,6 +221,16 @@ module.exports.scripttask = function (parent) {
                     break;
                 }
                 nextTime = s.nextRun + (s.interval * 60);
+                // this prevents "catch-up" tasks being scheduled if an endpoint is offline for a long period of time
+                // e.g. always make sure the next scheduled time is relevant to the scheduled interval, but in the future
+                if (nextTime < nowTime) {
+                    // initially I was worried about this causing event loop lockups
+                    // if there was a long enough time gap. Testing over 50 years of backlog for a 3 min interval
+                    // still ran under a fraction of a second. Safe to say this approach is safe! (~8.5 million times)
+                    while (nextTime < nowTime) {
+                        nextTime = nextTime + (s.interval * 60);
+                    }
+                }
                 if (s.startAt > nextTime) nextTime = s.startAt;
             break;
             case 'hourly':
@@ -229,6 +239,11 @@ module.exports.scripttask = function (parent) {
                     break;
                 }
                 nextTime = s.nextRun + (s.interval * 60 * 60);
+                if (nextTime < nowTime) {
+                    while (nextTime < nowTime) {
+                        nextTime = nextTime + (s.interval * 60 * 60);
+                    }
+                }
                 if (s.startAt > nextTime) nextTime = s.startAt;
             break;
             case 'daily':
@@ -237,6 +252,11 @@ module.exports.scripttask = function (parent) {
                     break;
                 }
                 nextTime = s.nextRun + (s.interval * 60 * 60 * 24);
+                if (nextTime < nowTime) {
+                    while (nextTime < nowTime) {
+                        nextTime = nextTime + (s.interval * 60 * 60 * 24);
+                    }
+                }
                 if (s.startAt > nextTime) nextTime = s.startAt;
             break;
             case 'weekly':
