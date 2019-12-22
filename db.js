@@ -81,7 +81,7 @@ module.exports.CreateDB = function(meshserver) {
               ).sort( 
                   { path: 1, type: 1, name: 1 } 
               ).project( 
-                  { name: 1, path: 1, type: 1 } 
+                  { name: 1, path: 1, type: 1, filetype: 1 } 
               ).toArray();
           };
           
@@ -157,7 +157,7 @@ module.exports.CreateDB = function(meshserver) {
                   ],
                   $or: [
                       { nextRun: null }, 
-                      { nextRun: { $lte: nowTime } }
+                      { nextRun: { $lte: (nowTime + 60) } } // check a minute into the future
                   ],
                   ...scheduleIdLimiter
               }).toArray();

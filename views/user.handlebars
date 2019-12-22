@@ -159,6 +159,9 @@
         width: 16px;
         border: none;
     }
+    .ftype {
+        font-size: small;
+    }
 </style>
 <body onload="doOnLoad();">
 <div id="scriptTaskUser">
@@ -380,7 +383,7 @@ function redrawScriptTree() {
       indent += 1;
     }
     if (f.type != 'folder') {
-        str += '<div id="' + f._id + '" draggable="true"  x-data-path="' + f.path + '" x-data-id="' + f._id + '" x-data-folder="' + folder_id + '" style="margin-left: ' + indent + 'em;" class="liscript" onclick="goScript(this);">' + f.name + '</div>';
+        str += '<div id="' + f._id + '" draggable="true"  x-data-path="' + f.path + '" x-data-id="' + f._id + '" x-data-folder="' + folder_id + '" style="margin-left: ' + indent + 'em;" class="liscript" onclick="goScript(this);">' + f.name + ' [<span class="ftype">' + f.filetype + '</span>]</div>';
     }
     document.getElementById('scriptContainer').innerHTML = str;
   });

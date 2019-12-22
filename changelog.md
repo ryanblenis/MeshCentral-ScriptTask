@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Known Issues]
 - None. Please feel free to submit an issue via [GitHub](https://github.com/ryanblenis/MeshCentral-ScriptTask) if you find anything.
 
+## [0.0.4] - 2019-12-22
+### Added
+- Script type identifier to the script tree view
+### Fixed
+- Prevent catch-up jobs from running every minute on long running schedules when a node is offline for a period of time.
+- Check for scheduled jobs 1 minute in the future to prevent schedules running 1 minute behind intended time.
+
 ## [0.0.3] - 2019-12-20
 ### Fixed
 - Typo causing installs to think Mongo is not in use
