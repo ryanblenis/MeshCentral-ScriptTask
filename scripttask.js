@@ -28,9 +28,6 @@ module.exports.scripttask = function (parent) {
     obj.server_startup = function() {
         obj.meshServer.pluginHandler.scripttask_db = require (__dirname + '/db.js').CreateDB(obj.meshServer);
         obj.db = obj.meshServer.pluginHandler.scripttask_db;
-        if (obj.meshServer.args.mongodb == null) { throw ('PLUGIN: ScriptTask: No MongoDB Found. Unloading.'); }
-        // going to be useful for sending out queues to online agents
-        //obj.intervalTimer = setInterval(function() {console.log('array of connected agents is ', Object.keys(obj.meshServer.webserver.wsagents))}, 10000);
         obj.resetQueueTimer();
     };
     
@@ -165,8 +162,13 @@ module.exports.scripttask = function (parent) {
                 if (req.query.id == null) return res.sendStatus(401); 
                 obj.db.get(req.query.id)
                 .then((scripts) => {
-                    vars.scriptData = JSON.stringify(scripts[0]);
-                    res.render('scriptedit', vars);
+                    if (scripts[0].filetype == 'proc') {
+                        vars.procData = JSON.stringify(scripts[0]);
+                        res.render('procedit', vars);
+                    } else {
+                        vars.scriptData = JSON.stringify(scripts[0]);
+                        res.render('scriptedit', vars);
+                    }
                 });
                 return;
             } else if (req.query.schedule == 1) {
@@ -176,8 +178,6 @@ module.exports.scripttask = function (parent) {
             }
             // default user view (tree)
             vars.scriptTree = 'null';
-            vars.mongoSupport = (obj.meshServer.args.mongodb == null) ? false : true;
-            if (vars.mongoSupport === false) { res.render('notSupported', vars); return; }
             obj.db.getScriptTree()
             .then(tree => {
               vars.scriptTree = JSON.stringify(tree);
@@ -185,6 +185,10 @@ module.exports.scripttask = function (parent) {
             });
             return;
         } else if (req.query.include == 1) {
+            switch (req.query.path.split('/').pop().split('.').pop()) {
+                case 'css':     res.contentType('text/css'); break;
+                case 'js':      res.contentType('text/javascript'); break;
+            }
             res.sendFile(__dirname + '/includes/' + req.query.path); // don't freak out. Express covers any path issues.
             return;
         }

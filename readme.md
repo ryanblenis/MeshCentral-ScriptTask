@@ -3,7 +3,7 @@
 A script running plugin for the [MeshCentral2](https://github.com/Ylianst/MeshCentral) Project. The plugin supports PowerShell, BAT, and Bash scripts. Windows, MacOS, and Linux endpoints are all supported. PowerShell can be run on any OS that has PowerShell installed, not just Windows.
 
 ## Important Note
-**This plugin currently only supports MongoDB enabled MeshCentral installs. This is due to inherent NeDB limitations for file size restrictions and ease of initial testing and development.**
+**This plugin now supports NeDB and MongoDB**
 
 ## Installation
 
