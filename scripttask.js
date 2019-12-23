@@ -604,6 +604,9 @@ module.exports.scripttask = function (parent) {
                     obj.updateFrontEnd( { scriptId: command.scriptId, tree: true } );
                 });
             break;
+            case 'clearAllPendingJobs':
+                obj.db.deletePendingJobsForNode(myparent.dbNodeKey);
+            break;
             default:
                 console.log('PLUGIN: ScriptTask: unknown action');
             break;

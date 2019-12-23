@@ -93,9 +93,25 @@ function consoleaction(args, rights, sessionid, parent) {
                 });
             }
         break;
+        case 'clearAll':
+            clearCache();
+            mesh.SendCommand({ 
+                "action": "plugin", 
+                "plugin": "scripttask",
+                "pluginaction": "clearAllPendingJobs",
+                "sessionid": _sessionid,
+                "tag": "console"
+            });
+            return 'Cache cleared. All pending jobs cleared.';
+        break;
         case 'clearCache':
             clearCache();
             return 'The script cache has been cleared';
+        break;
+        case 'debug':
+            debug_flag = (debug_flag) ? false : true;
+            var str = (debug_flag) ? 'on' : 'off';
+            return 'Debugging is now ' + str;
         break;
         case 'getPendingJobs':
             var ret = '';
@@ -173,32 +189,42 @@ function runPowerShell(sObj, jObj) {
         child.on('exit', function(procRetVal, procRetSignal) {
             dbg('Exiting with '+procRetVal + ', Signal: ' + procRetSignal); 
             if (errstr != '') {
-                fs.unlinkSync(oName);
-                fs.unlinkSync(pName);
+                try { 
+                    fs.unlinkSync(oName);
+                    fs.unlinkSync(pName);
+                } catch (e) { dbg('Could not unlink files, error was: ' + e); }
                 finalizeJob(jObj, null, errstr);
                 return;
             }
             if (procRetVal == 1) {
-                fs.unlinkSync(oName);
-                fs.unlinkSync(pName);
+                try { 
+                    fs.unlinkSync(oName);
+                    fs.unlinkSync(pName);
+                } catch (e) { dbg('Could not unlink files, error was: ' + e); }
                 finalizeJob(jObj, null, 'Process terminated unexpectedly.');
                 return;
             }
-            outstr = fs.readFileSync(oName, 'utf8').toString();
+            try { 
+                outstr = fs.readFileSync(oName, 'utf8').toString();
+            } catch (e) { outstr = (procRetVal) ? 'Failure' : 'Success'; }
             if (outstr) {
                 //outstr = outstr.replace(/[^\x20-\x7E]/g, ''); 
-                outstr = outstr.trim();
+                try { outstr = outstr.trim(); } catch (e) { }
+            } else {
+                outstr = (procRetVal) ? 'Failure' : 'Success';
             }
             dbg('Output is: ' + outstr);
-            fs.unlinkSync(oName);
-            fs.unlinkSync(pName);
+            try { 
+                fs.unlinkSync(oName);
+                fs.unlinkSync(pName);
+            } catch (e) { }
             finalizeJob(jObj, outstr);
         });
         child.stdin.write('exit\r\n');
         //child.waitExit(); // this was causing the event loop to stall on long-running scripts, switched to '.on exit'
 
     } catch (e) { 
-        dbg('Error block was ' + e);
+        dbg('Error block was (PowerShell): ' + e);
         finalizeJob(jObj, null, e);
     }
 }
@@ -224,29 +250,39 @@ function runBat(sObj, jObj) {
 
         child.on('exit', function(procRetVal, procRetSignal) {
             if (errstr != '') {
-                fs.unlinkSync(oName);
-                fs.unlinkSync(pName);
+                try { 
+                    fs.unlinkSync(oName);
+                    fs.unlinkSync(pName);
+                } catch (e) { dbg('Could not unlink files, error was: ' + e); }
                 finalizeJob(jObj, null, errstr);
                 return;
             }
             if (procRetVal == 1) {
-                fs.unlinkSync(oName);
-                fs.unlinkSync(pName);
+                try { 
+                    fs.unlinkSync(oName);
+                    fs.unlinkSync(pName);
+                } catch (e) { dbg('Could not unlink files, error was: ' + e); }
                 finalizeJob(jObj, null, 'Process terminated unexpectedly.');
                 return;
             }
-            outstr = fs.readFileSync(oName, 'utf8').toString();
+            try { 
+                outstr = fs.readFileSync(oName, 'utf8').toString();
+            } catch (e) { outstr = (procRetVal) ? 'Failure' : 'Success'; }
             if (outstr) {
                 //outstr = outstr.replace(/[^\x20-\x7E]/g, ''); 
-                outstr = outstr.trim();
+                try { outstr = outstr.trim(); } catch (e) { }
+            } else {
+                outstr = (procRetVal) ? 'Failure' : 'Success';
             }
             dbg('Output is: ' + outstr);
-            fs.unlinkSync(oName);
-            fs.unlinkSync(pName);
+            try {
+                fs.unlinkSync(oName);
+                fs.unlinkSync(pName);
+            } catch (e) { dbg('Could not unlink files, error was: ' + e); }
             finalizeJob(jObj, outstr);
         });
     } catch (e) { 
-        dbg('Error block was ' + e);
+        dbg('Error block was (BAT): ' + e);
         finalizeJob(jObj, null, e);
     }
 }
@@ -275,29 +311,39 @@ function runBash(sObj, jObj) {
         
         child.on('exit', function(procRetVal, procRetSignal) {
             if (errstr != '') {
-                fs.unlinkSync(oName);
-                fs.unlinkSync(pName);
+                try {
+                    fs.unlinkSync(oName);
+                    fs.unlinkSync(pName);
+                } catch (e) { dbg('Could not unlink files, error was: ' + e); }
                 finalizeJob(jObj, null, errstr);
                 return;
             }
             if (procRetVal == 1) {
-                fs.unlinkSync(oName);
-                fs.unlinkSync(pName);
+                try {
+                    fs.unlinkSync(oName);
+                    fs.unlinkSync(pName);
+                } catch (e) { dbg('Could not unlink files, error was: ' + e); }
                 finalizeJob(jObj, null, 'Process terminated unexpectedly.');
                 return;
             }
-            outstr = fs.readFileSync(oName, 'utf8').toString();
+            try { 
+                outstr = fs.readFileSync(oName, 'utf8').toString();
+            } catch (e) { outstr = (procRetVal) ? 'Failure' : 'Success'; }
             if (outstr) {
                 //outstr = outstr.replace(/[^\x20-\x7E]/g, ''); 
-                outstr = outstr.trim();
+                try { outstr = outstr.trim(); } catch (e) { }
+            } else {
+                outstr = (procRetVal) ? 'Failure' : 'Success';
             }
             dbg('Output is: ' + outstr);
-            fs.unlinkSync(oName);
-            fs.unlinkSync(pName);
+            try {
+                fs.unlinkSync(oName);
+                fs.unlinkSync(pName);
+            } catch (e) { dbg('Could not unlink files, error was: ' + e); }
             finalizeJob(jObj, outstr);
         });
     } catch (e) { 
-        dbg('Error block was ' + e);
+        dbg('Error block was (bash): ' + e);
         finalizeJob(jObj, null, e);
     }
 }
@@ -359,8 +405,9 @@ function cacheScript(sObj) {
     db.Put('pluginScriptTask_script_' + sObj._id, sObj);
 }
 function clearCache() {
-     db.Keys.forEach(function(k) {
+    db.Keys.forEach(function(k) {
         if (k.indexOf('pluginScriptTask_script_') === 0) {
+            db.Put(k, null);
             db.Delete(k);
         }
     });

@@ -35,7 +35,7 @@ module.exports.CreateDB = function(meshserver) {
                 type: 'script',
                 path: path,
                 name: name,
-                content: content.trim(),
+                content: content,
                 contentHash: require('crypto').createHash('sha384').update(content).digest('hex'),
                 filetype: filetype
             };
@@ -138,6 +138,13 @@ module.exports.CreateDB = function(meshserver) {
                 ],
                 ...scheduleIdLimiter
             }).toArray();
+        };
+        obj.deletePendingJobsForNode = function(node) {
+            return obj.scriptFile.deleteMany({ 
+                type: 'job', 
+                node: node,
+                completeTime: null,
+            });
         };
         obj.getPendingJobs = function(nodeScope) {
           if (nodeScope == null || !Array.isArray(nodeScope)) {

@@ -281,9 +281,15 @@ function goRun() {
     var selScript = document.querySelectorAll('.liselected');
     if (selScript.length) {
       var scriptId = selScript[0].getAttribute('x-data-id');
-      parent.meshserver.send({ 'action': 'plugin', 'plugin': 'scripttask', 'pluginaction': 'runScript', 'scriptId': scriptId, 'nodes': [ parent.currentNode._id ], 'currentNodeId': parent.currentNode._id });
+      if (scriptId == selScript[0].getAttribute('x-folder-id'))
+      {
+          parent.setDialogMode(2, "Oops!", 1, null, 'Please select a script. A folder is currently selected.'); 
+      }
+      else {
+          parent.meshserver.send({ 'action': 'plugin', 'plugin': 'scripttask', 'pluginaction': 'runScript', 'scriptId': scriptId, 'nodes': [ parent.currentNode._id ], 'currentNodeId': parent.currentNode._id });
+      }
     } else {
-      parent.setDialogMode(2, "Oops!", 1, null, 'No script has been selected to run on the machines.'); 
+        parent.setDialogMode(2, "Oops!", 1, null, 'No script has been selected to run on the machines.'); 
     }
 }
 
