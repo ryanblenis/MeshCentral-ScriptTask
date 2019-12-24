@@ -31,6 +31,7 @@ module.exports.CreateDB = function(meshserver) {
 
         obj.addScript = function(name, content, path, filetype) {
             if (path == null) path = "Shared"
+            if (filetype == 'bash') content = content.split('\r\n').join('\n').split('\r').join('\n');
             var sObj = { 
                 type: 'script',
                 path: path,
@@ -65,7 +66,12 @@ module.exports.CreateDB = function(meshserver) {
         
         obj.update = function(id, args) {
             id = formatId(id);
-            if (args.type == 'script' && args.content !== null) args.contentHash = require('crypto').createHash('sha384').update(args.content).digest('hex');
+            if (args.type == 'script' && args.content !== null) { 
+                if (args.filetype == 'bash') {
+                    args.content = args.content = split('\r\n').join('\n').split('\r').join('\n');
+                }
+                args.contentHash = require('crypto').createHash('sha384').update(args.content).digest('hex');
+            }
             return obj.scriptFile.updateOne( { _id: id }, { $set: args } );
         };
         obj.delete = function(id) {
