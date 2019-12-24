@@ -148,6 +148,22 @@ function finalizeJob(job, retVal, errVal) {
 function runPowerShell(sObj, jObj) {
     const fs = require('fs');
     var rand =  Math.random().toString(32).replace('0.', '');
+    
+    var path = '';
+    if (process.platform != 'win32') {
+        var pathTests = [
+            '/usr/local/mesh',
+            '/tmp',
+            '/usr/local/mesh_services/meshagent', 
+            '/var/tmp'
+        ];
+        pathTests.forEach(function(p) {
+            if (path == '' && fs.existsSync(p)) { path = p; }
+        });
+        dbg('Path chosen is: ' + path);
+        path = path + '/';
+    }
+    
     var oName = 'st' + rand + '.txt';
     var pName = 'st' + rand + '.ps1';
     var pwshout = '', pwsherr = '', cancontinue = false;
@@ -170,7 +186,7 @@ function runPowerShell(sObj, jObj) {
         if (cancontinue === false) { finalizeJob(jObj, null, "PowerShell is not installed"); return; }
     }
     try {
-        fs.writeFileSync(pName, sObj.content);
+        fs.writeFileSync(path + pName, sObj.content);
         var outstr = '', errstr = '';
         if (process.platform == 'win32') {
             var child = require('child_process').execFile(process.env['windir'] + '\\system32\\WindowsPowerShell\\v1.0\\powershell.exe', ['-NoLogo'] );
@@ -184,28 +200,29 @@ function runPowerShell(sObj, jObj) {
         if (process.platform == 'win32') {
             child.stdin.write('.\\' + pName + ' | Out-File ' + oName + ' -Encoding UTF8\r\n');
         } else {
+            child.stdin.write('cd\n')
             child.stdin.write('./' + pName + ' | Out-File ' + oName + ' -Encoding UTF8\n');
         }
         child.on('exit', function(procRetVal, procRetSignal) {
             dbg('Exiting with '+procRetVal + ', Signal: ' + procRetSignal); 
             if (errstr != '') {
                 try { 
-                    fs.unlinkSync(oName);
-                    fs.unlinkSync(pName);
+                    fs.unlinkSync(path + oName);
+                    fs.unlinkSync(path + pName);
                 } catch (e) { dbg('Could not unlink files, error was: ' + e); }
                 finalizeJob(jObj, null, errstr);
                 return;
             }
             if (procRetVal == 1) {
                 try { 
-                    fs.unlinkSync(oName);
-                    fs.unlinkSync(pName);
+                    fs.unlinkSync(path + oName);
+                    fs.unlinkSync(path + pName);
                 } catch (e) { dbg('Could not unlink files, error was: ' + e); }
                 finalizeJob(jObj, null, 'Process terminated unexpectedly.');
                 return;
             }
             try { 
-                outstr = fs.readFileSync(oName, 'utf8').toString();
+                outstr = fs.readFileSync(path + oName, 'utf8').toString();
             } catch (e) { outstr = (procRetVal) ? 'Failure' : 'Success'; }
             if (outstr) {
                 //outstr = outstr.replace(/[^\x20-\x7E]/g, ''); 
@@ -215,8 +232,8 @@ function runPowerShell(sObj, jObj) {
             }
             dbg('Output is: ' + outstr);
             try { 
-                fs.unlinkSync(oName);
-                fs.unlinkSync(pName);
+                fs.unlinkSync(path + oName);
+                fs.unlinkSync(path + pName);
             } catch (e) { }
             finalizeJob(jObj, outstr);
         });
@@ -292,19 +309,34 @@ function runBash(sObj, jObj) {
         finalizeJob(jObj, null, 'Platform not supported.');
         return;
     }
+    //dbg('proc is ' + JSON.stringify(process));
+    const fs = require('fs');
+    var path = '';
+    var pathTests = [
+        '/usr/local/mesh',
+        '/tmp',
+        '/usr/local/mesh_services/meshagent', 
+        '/var/tmp'
+    ];
+    pathTests.forEach(function(p) {
+        if (path == '' && fs.existsSync(p)) { path = p; }
+    });
+    dbg('Path chosen is: ' + path);
+    path = path + '/';
     //var child = require('child_process');
     //child.execFile(process.env['windir'] + '\\system32\\cmd.exe', ['/c', 'RunDll32.exe user32.dll,LockWorkStation'], { type: 1 });
-    const fs = require('fs');
+    
     var rand =  Math.random().toString(32).replace('0.', '');
     var oName = 'st' + rand + '.txt';
     var pName = 'st' + rand + '.sh';
     try {
-        fs.writeFileSync(pName, sObj.content);
+        fs.writeFileSync(path + pName, sObj.content);
         var outstr = '', errstr = '';
         var child = require('child_process').execFile('/bin/sh', ['sh']);
         child.stderr.on('data', function (chunk) { errstr += chunk; });
         child.stdout.on('data', function (chunk) { });
         runningJobPIDs[jObj.jobId] = child.pid;
+        child.stdin.write('cd ' + path + '\n');
         child.stdin.write('chmod a+x ' + pName + '\n');
         child.stdin.write('./' + pName + ' > ' + oName + '\n');
         child.stdin.write('exit\n');
@@ -312,22 +344,22 @@ function runBash(sObj, jObj) {
         child.on('exit', function(procRetVal, procRetSignal) {
             if (errstr != '') {
                 try {
-                    fs.unlinkSync(oName);
-                    fs.unlinkSync(pName);
-                } catch (e) { dbg('Could not unlink files, error was: ' + e); }
+                    fs.unlinkSync(path + oName);
+                    fs.unlinkSync(path + pName);
+                } catch (e) { dbg('Could not unlink files, error was: ' + e + ' for path ' + path); }
                 finalizeJob(jObj, null, errstr);
                 return;
             }
             if (procRetVal == 1) {
                 try {
-                    fs.unlinkSync(oName);
-                    fs.unlinkSync(pName);
-                } catch (e) { dbg('Could not unlink files, error was: ' + e); }
+                    fs.unlinkSync(path + oName);
+                    fs.unlinkSync(path + pName);
+                } catch (e) { dbg('Could not unlink files1, error was: ' + e + ' for path ' + path); }
                 finalizeJob(jObj, null, 'Process terminated unexpectedly.');
                 return;
             }
             try { 
-                outstr = fs.readFileSync(oName, 'utf8').toString();
+                outstr = fs.readFileSync(path + oName, 'utf8').toString();
             } catch (e) { outstr = (procRetVal) ? 'Failure' : 'Success'; }
             if (outstr) {
                 //outstr = outstr.replace(/[^\x20-\x7E]/g, ''); 
@@ -337,9 +369,9 @@ function runBash(sObj, jObj) {
             }
             dbg('Output is: ' + outstr);
             try {
-                fs.unlinkSync(oName);
-                fs.unlinkSync(pName);
-            } catch (e) { dbg('Could not unlink files, error was: ' + e); }
+                fs.unlinkSync(path + oName);
+                fs.unlinkSync(path + pName);
+            } catch (e) { dbg('Could not unlink files2, error was: ' + e + ' for path ' + path); }
             finalizeJob(jObj, outstr);
         });
     } catch (e) { 
@@ -355,26 +387,24 @@ function jobIsRunning(jObj) {
 
 function runScript(sObj, jObj) {
     // get current processes and clean running jobs if they are no longer running (computer fell asleep, user caused process to stop, etc.)
-    require('process-manager').getProcesses(function (plist) {
-        //dbg('Got process list');
-        dbg('There are currently ' + runningJobs.length + ' running jobs.');
-        if (runningJobs.length) {
-            runningJobs.forEach(function (jobId, idx) {
-                //dbg('Checking for running job: ' + jobId + ' with PID ' + runningJobPIDs[jobId]);
-                try {
-                    //dbg('Info is: ' + typeof plist[runningJobPIDs[jobId]]);
-                    //dbg('Info2 is: ' + typeof plist[runningJobPIDs[jobId]].cmd);
-                } catch (e) { dbg('Info Error was ' + e); }
-                if (typeof plist[runningJobPIDs[jobId]] == 'undefined' || typeof plist[runningJobPIDs[jobId]].cmd != 'string') {
-                    dbg('Found job with no process. Removing running status.');
-                    delete runningJobPIDs[jobId];
-                    runningJobs.remove(runningJobs.indexOf(idx));
-                    //dbg('RunningJobs: ' + JSON.stringify(runningJobs));
-                    //dbg('RunningJobsPIDs: ' + JSON.stringify(runningJobPIDs));
-                }
-            });
-        }
-    });
+    if (process.platform != 'linux' && runningJobs.length) { // linux throws errors here in the meshagent for some reason
+        require('process-manager').getProcesses(function (plist) {
+            dbg('Got process list');
+            dbg('There are currently ' + runningJobs.length + ' running jobs.');
+            if (runningJobs.length) {
+                runningJobs.forEach(function (jobId, idx) {
+                    dbg('Checking for running job: ' + jobId + ' with PID ' + runningJobPIDs[jobId]);
+                    if (typeof plist[runningJobPIDs[jobId]] == 'undefined' || typeof plist[runningJobPIDs[jobId]].cmd != 'string') {
+                        dbg('Found job with no process. Removing running status.');
+                        delete runningJobPIDs[jobId];
+                        runningJobs.remove(runningJobs.indexOf(idx));
+                        //dbg('RunningJobs: ' + JSON.stringify(runningJobs));
+                        //dbg('RunningJobsPIDs: ' + JSON.stringify(runningJobPIDs));
+                    }
+                });
+            }
+        });
+    }
     if (jobIsRunning(jObj)) { dbg('Job already running job id [' + jObj.jobId + ']. Skipping.'); return; }
     runningJobs.push(jObj.jobId);
     dbg('Running Script '+ sObj._id);
