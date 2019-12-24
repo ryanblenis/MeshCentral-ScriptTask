@@ -146,79 +146,126 @@ function finalizeJob(job, retVal, errVal) {
 }
 //@TODO Test powershell on *nix devices with and without powershell installed
 function runPowerShell(sObj, jObj) {
+    if (process.platform != 'win32') return runPowerShellNonWin(sObj, jObj);
     const fs = require('fs');
     var rand =  Math.random().toString(32).replace('0.', '');
-    
-    var path = '';
-    if (process.platform != 'win32') {
-        var pathTests = [
-            '/usr/local/mesh',
-            '/tmp',
-            '/usr/local/mesh_services/meshagent', 
-            '/var/tmp'
-        ];
-        pathTests.forEach(function(p) {
-            if (path == '' && fs.existsSync(p)) { path = p; }
-        });
-        dbg('Path chosen is: ' + path);
-        path = path + '/';
-    }
     
     var oName = 'st' + rand + '.txt';
     var pName = 'st' + rand + '.ps1';
     var pwshout = '', pwsherr = '', cancontinue = false;
-    if (process.platform != 'win32') {
-        try {
-            var childp = require('child_process').execFile('/bin/sh', ['sh']);
-            childp.stderr.on('data', function (chunk) { pwsherr += chunk; });
-            childp.stdout.on('data', function (chunk) { pwshout += chunk; });
-            childp.stdin.write('`which pwsh`' + '\n');
-            childp.stdin.write('exit\n');
-            childp.waitExit();
-        } catch (e) { finalizeJob(jObj, null, "Couldn't determine pwsh in env: " + e); }
-        if (pwsherr != '') {
-            finalizeJob(jObj, null, "PowerShell env determination error: " + pwsherr);
-            return;
-        }
-        if (pwshout.trim() != '') {
-            cancontinue = true;
-        }
-        if (cancontinue === false) { finalizeJob(jObj, null, "PowerShell is not installed"); return; }
-    }
     try {
-        fs.writeFileSync(path + pName, sObj.content);
+        fs.writeFileSync(pName, sObj.content);
         var outstr = '', errstr = '';
-        if (process.platform == 'win32') {
-            var child = require('child_process').execFile(process.env['windir'] + '\\system32\\WindowsPowerShell\\v1.0\\powershell.exe', ['-NoLogo'] );
-        } else {
-            var child = require('child_process').execFile('`which pwsh`');
-        }
+        var child = require('child_process').execFile(process.env['windir'] + '\\system32\\WindowsPowerShell\\v1.0\\powershell.exe', ['-NoLogo'] );
+        child.stderr.on('data', function (chunk) { errstr += chunk; });
+        child.stdout.on('data', function (chunk) { });
+        runningJobPIDs[jObj.jobId] = child.pid;
+        child.stdin.write('.\\' + pName + ' | Out-File ' + oName + ' -Encoding UTF8\r\n');
+        child.on('exit', function(procRetVal, procRetSignal) {
+            dbg('Exiting with '+procRetVal + ', Signal: ' + procRetSignal); 
+            if (errstr != '') {
+                finalizeJob(jObj, null, errstr);
+                try { 
+                    fs.unlinkSync(oName);
+                    fs.unlinkSync(pName);
+                } catch (e) { dbg('Could not unlink files, error was: ' + e); }
+                return;
+            }
+            if (procRetVal == 1) {
+                finalizeJob(jObj, null, 'Process terminated unexpectedly.');
+                try { 
+                    fs.unlinkSync(oName);
+                    fs.unlinkSync(pName);
+                } catch (e) { dbg('Could not unlink files, error was: ' + e); }
+                return;
+            }
+            try { 
+                outstr = fs.readFileSync(oName, 'utf8').toString();
+            } catch (e) { outstr = (procRetVal) ? 'Failure' : 'Success'; }
+            if (outstr) {
+                //outstr = outstr.replace(/[^\x20-\x7E]/g, ''); 
+                try { outstr = outstr.trim(); } catch (e) { }
+            } else {
+                outstr = (procRetVal) ? 'Failure' : 'Success';
+            }
+            dbg('Output is: ' + outstr);
+            finalizeJob(jObj, outstr);
+            try { 
+                fs.unlinkSync(oName);
+                fs.unlinkSync(pName);
+            } catch (e) { }
+        });
+        child.stdin.write('exit\r\n');
+        //child.waitExit(); // this was causing the event loop to stall on long-running scripts, switched to '.on exit'
+
+    } catch (e) { 
+        dbg('Error block was (PowerShell): ' + e);
+        finalizeJob(jObj, null, e);
+    }
+}
+
+function runPowerShellNonWin(sObj, jObj) {
+    const fs = require('fs');
+    var rand =  Math.random().toString(32).replace('0.', '');
+    
+    var path = '';
+    var pathTests = [
+        '/usr/local/mesh',
+        '/tmp',
+        '/usr/local/mesh_services/meshagent', 
+        '/var/tmp'
+    ];
+    pathTests.forEach(function(p) {
+        if (path == '' && fs.existsSync(p)) { path = p; }
+    });
+    dbg('Path chosen is: ' + path);
+    path = path + '/';
+    
+    var oName = 'st' + rand + '.txt';
+    var pName = 'st' + rand + '.ps1';
+    var pwshout = '', pwsherr = '', cancontinue = false;
+    try {
+        var childp = require('child_process').execFile('/bin/sh', ['sh']);
+        childp.stderr.on('data', function (chunk) { pwsherr += chunk; });
+        childp.stdout.on('data', function (chunk) { pwshout += chunk; });
+        childp.stdin.write('which pwsh' + '\n');
+        childp.stdin.write('exit\n');
+        childp.waitExit();
+    } catch (e) { finalizeJob(jObj, null, "Couldn't determine pwsh in env: " + e); }
+    if (pwsherr != '') {
+        finalizeJob(jObj, null, "PowerShell env determination error: " + pwsherr);
+        return;
+    }
+    if (pwshout.trim() != '') {
+        cancontinue = true;
+    }
+    if (cancontinue === false) { finalizeJob(jObj, null, "PowerShell is not installed"); return; }
+    try {
+        fs.writeFileSync(path + pName, '#!' + pwshout + '\n' + sObj.content.split('\r\n').join('\n').split('\r').join('\n'));
+        var outstr = '', errstr = '';
+        var child = require('child_process').execFile('/bin/sh', ['sh']);
         child.stderr.on('data', function (chunk) { errstr += chunk; });
         child.stdout.on('data', function (chunk) { });
         runningJobPIDs[jObj.jobId] = child.pid;
         
-        if (process.platform == 'win32') {
-            child.stdin.write('.\\' + pName + ' | Out-File ' + oName + ' -Encoding UTF8\r\n');
-        } else {
-            child.stdin.write('cd\n')
-            child.stdin.write('./' + pName + ' | Out-File ' + oName + ' -Encoding UTF8\n');
-        }
+        child.stdin.write('cd ' + path + '\n');                                                                                                                                                
+        child.stdin.write('chmod a+x ' + pName + '\n');                                                                                                                                        
+        child.stdin.write('./' + pName + ' > ' + oName + '\n');
         child.on('exit', function(procRetVal, procRetSignal) {
-            dbg('Exiting with '+procRetVal + ', Signal: ' + procRetSignal); 
             if (errstr != '') {
-                try { 
+                finalizeJob(jObj, null, errstr);
+                try {
                     fs.unlinkSync(path + oName);
                     fs.unlinkSync(path + pName);
-                } catch (e) { dbg('Could not unlink files, error was: ' + e); }
-                finalizeJob(jObj, null, errstr);
+                } catch (e) { dbg('Could not unlink files, error was: ' + e + ' for path ' + path); }
                 return;
             }
             if (procRetVal == 1) {
-                try { 
+                finalizeJob(jObj, null, 'Process terminated unexpectedly.');
+                try {
                     fs.unlinkSync(path + oName);
                     fs.unlinkSync(path + pName);
-                } catch (e) { dbg('Could not unlink files, error was: ' + e); }
-                finalizeJob(jObj, null, 'Process terminated unexpectedly.');
+                } catch (e) { dbg('Could not unlink files1, error was: ' + e + ' for path ' + path); }
                 return;
             }
             try { 
@@ -231,17 +278,15 @@ function runPowerShell(sObj, jObj) {
                 outstr = (procRetVal) ? 'Failure' : 'Success';
             }
             dbg('Output is: ' + outstr);
-            try { 
+            finalizeJob(jObj, outstr);
+            try {
                 fs.unlinkSync(path + oName);
                 fs.unlinkSync(path + pName);
-            } catch (e) { }
-            finalizeJob(jObj, outstr);
+            } catch (e) { dbg('Could not unlink files2, error was: ' + e + ' for path ' + path); }
         });
-        child.stdin.write('exit\r\n');
-        //child.waitExit(); // this was causing the event loop to stall on long-running scripts, switched to '.on exit'
-
+        child.stdin.write('exit\n');
     } catch (e) { 
-        dbg('Error block was (PowerShell): ' + e);
+        dbg('Error block was (PowerShellNonWin): ' + e);
         finalizeJob(jObj, null, e);
     }
 }
