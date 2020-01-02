@@ -118,7 +118,7 @@ module.exports.scripttask = function (parent) {
             })
             .then((scriptSchedule) => {
                 var targets = ['*', 'server-users'];
-                obj.meshServer.DispatchEvent(targets, obj, { action: 'plugin', plugin: 'scripttask', pluginaction: 'historyData', scriptId: ids.scriptId, nodeId: null, scriptHistory: scriptHistory, nodeHistory: null, scriptSchedule: scriptSchedule });
+                obj.meshServer.DispatchEvent(targets, obj, { nolog: true, action: 'plugin', plugin: 'scripttask', pluginaction: 'historyData', scriptId: ids.scriptId, nodeId: null, scriptHistory: scriptHistory, nodeHistory: null, scriptSchedule: scriptSchedule });
             });
         }
         if (ids.nodeId != null) {
@@ -130,14 +130,14 @@ module.exports.scripttask = function (parent) {
             })
             .then((nodeSchedule) => {
                 var targets = ['*', 'server-users'];
-                obj.meshServer.DispatchEvent(targets, obj, { action: 'plugin', plugin: 'scripttask', pluginaction: 'historyData', scriptId: null, nodeId: ids.nodeId, scriptHistory: null, nodeHistory: nodeHistory, nodeSchedule: nodeSchedule });
+                obj.meshServer.DispatchEvent(targets, obj, { nolog: true, action: 'plugin', plugin: 'scripttask', pluginaction: 'historyData', scriptId: null, nodeId: ids.nodeId, scriptHistory: null, nodeHistory: nodeHistory, nodeSchedule: nodeSchedule });
             });
         }
         if (ids.tree === true) {
             obj.db.getScriptTree()
             .then((tree) => {
                 var targets = ['*', 'server-users'];
-                obj.meshServer.DispatchEvent(targets, obj, { action: 'plugin', plugin: 'scripttask', pluginaction: 'newScriptTree', tree: tree });
+                obj.meshServer.DispatchEvent(targets, obj, { nolog: true, action: 'plugin', plugin: 'scripttask', pluginaction: 'newScriptTree', tree: tree });
             });
         }
     };
