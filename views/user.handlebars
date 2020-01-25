@@ -162,6 +162,10 @@
     .ftype {
         font-size: small;
     }
+    .tblFloat {
+        float: left;
+        width: 33%;
+    }
 </style>
 <body onload="doOnLoad();">
 <div id="scriptTaskUser">
@@ -184,9 +188,21 @@
           <div class="infoBar">Advanced Run</div>
           <div id="multiRun" class="infoContent">
               <div style="padding-top: 15px;"><button onclick="goAdvancedRun();">Schedule on Selected</button></div>
-              <table id="mRunTbl" cellspacing="0" cellpadding="0">
-                  <tr><td><label><input type="checkbox" onclick="selAllNodes(this);"> Select All</label></td></tr>
-              </table>
+              <div class="tblFloat">
+                  <table id="mRunTbl" cellspacing="0" cellpadding="0">
+                      <tr><td><label><input type="checkbox" onclick="selAllNodes(this);"> Select All</label></td></tr>
+                  </table>
+              </div>
+              <div class="tblFloat">
+                  <table id="mRunTblMesh" cellspacing="0" cellpadding="0">
+                      <tr><td>Meshes</td></tr>
+                  </table>
+              </div>
+              <div class="tblFloat">
+                  <table id="mRunTblTag" cellspacing="0" cellpadding="0">
+                      <tr><td>Tags</td></tr>
+                  </table>
+              </div>
           </div>
           <div class="infoBar">Node Schedules</div>
           <div id="nSch" class="infoContent">
@@ -223,7 +239,11 @@ var scriptTree = {{{scriptTree}}};
 var elementDragged = false;
 var dragCounter = 0;
 var draggedId = null;
+var nodesObj = {};
 
+function onlyUnique(value, index, self) { 
+    return self.indexOf(value) === index;
+}
 function resizeIframe() {
     document.body.style.height = 0;
     parent.pluginHandler.scripttask.resizeContent();
@@ -233,7 +253,7 @@ function updateNodesTable() {
   dRows.forEach((r) => {
       r.parentNode.removeChild(r);
   });
-  
+  var tagList = [];
   var nodeRowIns = document.querySelector('#mRunTbl');
   parent.nodes.forEach(function(i) {
       var item = {...i, ...{}};
@@ -244,10 +264,50 @@ function updateNodesTable() {
             <td><label><input type="checkbox" ${item.checked} name="runOn[]" value="${item._id}"> <div class="nIcon j${item.icon}"></div>${item.name}</label></td>
           </tr>`;
           nodeRowIns.insertAdjacentHTML('beforeend', tpl);
+          if (i.tags && i.tags.length) item.tags.forEach(function(t) { tagList.push(t) });
+          nodesObj[i._id] = i;
       }
+  });
+  tagList = tagList.filter(onlyUnique); tagList = tagList.sort();
+  var nodeRowIns = document.querySelector('#mRunTblMesh');
+  for (const i in parent.meshes) { // parent.meshes.forEach(function(i) {
+      var item = {...parent.meshes[i], ...{}};
+      if (item.mtype == 2) {
+          let tpl = `<tr class="stNodeRow">
+            <td><label><input type="checkbox" onclick="selNodesByMesh(this);" value="${item._id}"> ${item.name}</label></td>
+          </tr>`;
+          nodeRowIns.insertAdjacentHTML('beforeend', tpl);
+      }
+  }
+  var nodeRowIns = document.querySelector('#mRunTblTag');
+  tagList.forEach(function(i) {
+      let tpl = `<tr class="stNodeRow">
+        <td><label><input type="checkbox" onclick="selNodesByTag(this)" value="${i}"> ${i}</label></td>
+      </tr>`;
+      nodeRowIns.insertAdjacentHTML('beforeend', tpl);
   });
 }
 
+function selNodesByTag(el) {
+    var t = el.value;
+    var allNodes = Q('mRunTbl').querySelectorAll('input[type="checkbox"][name="runOn[]"]');
+    var checked = false;
+    if (el.checked) checked = true;
+    allNodes.forEach(function(n) {
+        if (nodesObj[n.value].tags && nodesObj[n.value].tags.indexOf(t) > -1) n.checked = checked;      
+    });
+    return true;
+}
+function selNodesByMesh(el) {
+    var mid = el.value;
+    var allNodes = Q('mRunTbl').querySelectorAll('input[type="checkbox"][name="runOn[]"]');
+    var checked = false;
+    if (el.checked) checked = true;
+    allNodes.forEach(function(n) {
+        if (nodesObj[n.value].meshid == mid) n.checked = checked;      
+    });
+    return true;
+}
 function selAllNodes(el) {
   var allNodes = Q('mRunTbl').querySelectorAll('input[type="checkbox"][name="runOn[]"]');
   var checked = false;

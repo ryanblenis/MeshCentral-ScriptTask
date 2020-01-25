@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Known Issues]
 - None. Please feel free to submit an issue via [GitHub](https://github.com/ryanblenis/MeshCentral-ScriptTask) if you find anything.
 
+## [0.0.11] - 2020-01-24
+### Added
+- Advanced selection of nodes based on mesh and tag membership
+
 ## [0.0.10] - 2020-01-02
 ### Fixed
 - Removed logging to MeshCentral events DB for each script run / refresh event (causing events file to grow quickly and crash NeDB instances)
