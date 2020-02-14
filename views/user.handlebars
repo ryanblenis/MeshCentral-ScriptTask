@@ -449,7 +449,7 @@ function redrawScriptTree() {
       indent += 1;
     }
     if (f.type != 'folder') {
-        str += '<div id="' + f._id + '" draggable="true"  x-data-path="' + f.path + '" x-data-id="' + f._id + '" x-data-folder="' + folder_id + '" style="margin-left: ' + indent + 'em;" class="liscript" onclick="goScript(this);">' + f.name + ' [<span class="ftype">' + f.filetype + '</span>]</div>';
+        str += '<div id="' + f._id + '" draggable="true"  x-data-path="' + f.path + '" x-data-id="' + f._id + '" x-data-folder="' + folder_id + '" style="margin-left: ' + indent + 'em;" class="liscript" onclick="goScript(this);"><span class="fname">' + f.name + '</span> [<span class="ftype">' + f.filetype + '</span>]</div>';
     }
     document.getElementById('scriptContainer').innerHTML = str;
   });
@@ -720,7 +720,7 @@ function redrawScriptTree() {
     var scriptEl = document.querySelectorAll('.liselected');
     if (scriptEl.length != 1) return;
     var el = scriptEl[0];
-    var name = el.innerHTML;
+    var name = el.querySelector('.fname').innerHTML;
     var id = el.getAttribute('x-data-id');
     parent.setDialogMode(2, "Rename " + name, 3, renameEx, '<input type="text"  value="' + name + '" id=stfilename style=width:100% /><input type="hidden" id="stid" value="' + id + '" />'); 
     parent.focusTextBox('stfilename');
