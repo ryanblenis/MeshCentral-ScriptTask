@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Known Issues]
 - None. Please feel free to submit an issue via [GitHub](https://github.com/ryanblenis/MeshCentral-ScriptTask) if you find anything.
 
+## [0.0.13] - 2020-02-15
+### Fixed
+- Folder rename function now working as intended
+- Removed ability to "edit" folders as if they were a script
+
 ## [0.0.12] - 2020-02-14
 ### Fixed
 - Rename function broke when filetype tags were added

@@ -399,7 +399,31 @@ module.exports.scripttask = function (parent) {
                 });            
             break;
             case 'rename':
-              obj.db.update(command.id, { name: command.name })
+              obj.db.get(command.id)
+              .then((docs) => {
+                  var doc = docs[0];
+                  if (doc.type == 'folder') {
+                      console.log('old', doc.path, 'new', doc.path.replace(doc.path, command.name));
+                      return obj.db.update(command.id, { path: doc.path.replace(doc.name, command.name) })
+                      .then(() => { // update sub-items
+                          return obj.db.getByPath(doc.path)
+                      })
+                      .then((found) => {
+                          if (found.length > 0) {
+                            var proms = [];
+                            found.forEach(f => {
+                              proms.push(obj.db.update(f._id, { path: doc.path.replace(doc.name, command.name) } ));
+                            })
+                            return Promise.all(proms);
+                          }
+                      })
+                  } else {
+                      return Promise.resolve();
+                  }
+              })
+              .then(() => {
+                  obj.db.update(command.id, { name: command.name })
+              })
               .then(() => {
                   return obj.db.updateScriptJobName(command.id, command.name);
               })

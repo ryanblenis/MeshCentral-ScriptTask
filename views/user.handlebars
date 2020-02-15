@@ -355,7 +355,7 @@ function goRun() {
 
 function goEdit() {
     var selScript = document.querySelectorAll('.liselected');
-    if (selScript.length) {
+    if (selScript.length && (selScript[0].getAttribute('x-data-id') != selScript[0].getAttribute('x-data-folder'))) {
       var scriptId = selScript[0].getAttribute('x-data-id');
       window.open('/pluginadmin.ashx?pin=scripttask&user=1&edit=1&id=' + scriptId, '_blank');
       window.callback = function(sd) {
@@ -444,7 +444,7 @@ function redrawScriptTree() {
       indent = (f.path.match(/\//g) || []).length + 1;
       var name = f.path.match(/[^\/]+$/);
       folder_id = f._id;
-      str += '<div draggable="true" x-data-path="' + f.path + '" x-data-id="' + f._id + '" x-data-folder="' + folder_id + '" style="margin-left: ' + indent + 'em;" class="lifolder" onclick="toggleCollapse(this);">' + name + '</div>';
+      str += '<div draggable="true" x-data-path="' + f.path + '" x-data-id="' + f._id + '" x-data-folder="' + folder_id + '" style="margin-left: ' + indent + 'em;" class="lifolder" onclick="toggleCollapse(this);"><span class="fname">' + name + '</span></div>';
       lastpath = f.path;
       indent += 1;
     }
