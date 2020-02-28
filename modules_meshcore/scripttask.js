@@ -451,6 +451,14 @@ function runScript(sObj, jObj) {
         });
     }
     if (jobIsRunning(jObj)) { dbg('Job already running job id [' + jObj.jobId + ']. Skipping.'); return; }
+    if (jObj.replaceVars != null) {
+        Object.getOwnPropertyNames(jObj.replaceVars).forEach(function(key) {
+          var val = jObj.replaceVars[key];
+          sObj.content = sObj.content.replace(new RegExp('#'+key+'#', 'g'), val);
+          dbg('replacing var '+ key + ' with ' + val);
+        });
+        sObj.content = sObj.content.replace(new RegExp('#(.*?)#', 'g'), 'VAR_NOT_FOUND');
+    }
     runningJobs.push(jObj.jobId);
     dbg('Running Script '+ sObj._id);
     switch (sObj.filetype) {

@@ -17,9 +17,17 @@ module.exports.scripttask = function (parent) {
     obj.exports = [      
         'onDeviceRefreshEnd',
         'resizeContent',
-        'historyData'
+        'historyData',
+        'variableData',
+        'malix_triggerOption'
     ];
     
+    obj.malix_triggerOption = function(selectElem) {
+        selectElem.options.add(new Option("ScriptTask - Run Script", "scripttask_runscript"));
+    }
+    obj.malix_triggerFields_scripttask_runscript = function() {
+        
+    }
     obj.resetQueueTimer = function() {
         clearTimeout(obj.intervalTimer);
         obj.intervalTimer = setInterval(obj.queueRun, 1 * 60 * 1000); // every minute
@@ -48,19 +56,46 @@ module.exports.scripttask = function (parent) {
         iFrame.style.height = newHeight + 'px';
     };
     
-    obj.queueRun = function() {
+    obj.queueRun = async function() {
         var onlineAgents = Object.keys(obj.meshServer.webserver.wsagents);
         //obj.debug('ScriptTask', 'Queue Running', Date().toLocaleString(), 'Online agents: ', onlineAgents);
-        
-        
+
         obj.db.getPendingJobs(onlineAgents)
         .then((jobs) => {
             if (jobs.length == 0) return;
             //@TODO check for a large number and use taskLimiter to queue the jobs
             jobs.forEach(job => {
                 obj.db.get(job.scriptId)
-                .then((script) => {
+                .then(async (script) => {
                     script = script[0];
+                    var foundVars = script.content.match(/#(.*?)#/g);
+                    var replaceVars = {};
+                    if (foundVars != null && foundVars.length > 0) {
+                        var foundVarNames = [];
+                        foundVars.forEach(fv => {
+                            foundVarNames.push(fv.replace(/^#+|#+$/g, ''));
+                        });
+                        
+                        var limiters = { 
+                            scriptId: job.scriptId,
+                            nodeId: job.node,
+                            meshId: obj.meshServer.webserver.wsagents[job.node]['dbMeshKey'],
+                            names: foundVarNames
+                        };
+                        var finvals = await obj.db.getVariables(limiters);
+                        var ordering = { 'global': 0, 'script': 1, 'mesh': 2, 'node': 3 }
+                        finvals.sort((a, b) => {
+                            return (ordering[a.scope] - ordering[b.scope])
+                              || a.name.localeCompare(b.name);
+                        });
+                        finvals.forEach(fv => {
+                            replaceVars[fv.name] = fv.value;
+                        });
+                        replaceVars['GBL:meshId'] = obj.meshServer.webserver.wsagents[job.node]['dbMeshKey'];
+                        replaceVars['GBL:nodeId'] = job.node;
+                        //console.log('FV IS', finvals);
+                        //console.log('RV IS', replaceVars);
+                    }
                     var dispatchTime = Math.floor(new Date() / 1000);
                     var jObj = { 
                         action: 'plugin', 
@@ -68,7 +103,7 @@ module.exports.scripttask = function (parent) {
                         pluginaction: 'triggerJob',
                         jobId: job._id,
                         scriptId: job.scriptId,
-                        replaceVars: job.replaceVars,
+                        replaceVars: replaceVars,
                         scriptHash: script.contentHash,
                         dispatchTime: dispatchTime
                     };
@@ -108,7 +143,7 @@ module.exports.scripttask = function (parent) {
         });
     };
     
-    obj.updateFrontEnd = function(ids){
+    obj.updateFrontEnd = async function(ids){
         if (ids.scriptId != null) {
             var scriptHistory = null;
             obj.db.getJobScriptHistory(ids.scriptId)
@@ -138,6 +173,13 @@ module.exports.scripttask = function (parent) {
             .then((tree) => {
                 var targets = ['*', 'server-users'];
                 obj.meshServer.DispatchEvent(targets, obj, { nolog: true, action: 'plugin', plugin: 'scripttask', pluginaction: 'newScriptTree', tree: tree });
+            });
+        }
+        if (ids.variables === true) {
+            obj.db.getVariables()
+            .then((vars) => {
+                var targets = ['*', 'server-users'];
+                obj.meshServer.DispatchEvent(targets, obj, { nolog: true, action: 'plugin', plugin: 'scripttask', pluginaction: 'variableData', vars: vars });
             });
         }
     };
@@ -199,6 +241,10 @@ module.exports.scripttask = function (parent) {
     obj.historyData = function (message) {
         if (typeof pluginHandler.scripttask.loadHistory == 'function') pluginHandler.scripttask.loadHistory(message);
         if (typeof pluginHandler.scripttask.loadSchedule == 'function') pluginHandler.scripttask.loadSchedule(message);
+    };
+    
+    obj.variableData = function (message) {
+        if (typeof pluginHandler.scripttask.loadVariables == 'function') pluginHandler.scripttask.loadVariables(message);
     };
     
     obj.determineNextJobTime = function(s) {
@@ -397,6 +443,25 @@ module.exports.scripttask = function (parent) {
                 .then(() => {
                     obj.updateFrontEnd( { tree: true } );
                 });            
+            break;
+            case 'new':
+                var parent_path = '';
+                var new_path = '';
+                obj.db.get(command.parent_id)
+                .then(found => {
+                  if (found.length > 0) {
+                      var file = found[0];
+                      parent_path = file.path;
+                  } else {
+                      parent_path = 'Shared';
+                  }
+                })
+                .then(() => {
+                    obj.db.addScript(command.name, '', parent_path, command.filetype)
+                })
+                .then(() => {
+                    obj.updateFrontEnd( { tree: true } );
+                });
             break;
             case 'rename':
               obj.db.get(command.id)
@@ -630,6 +695,32 @@ module.exports.scripttask = function (parent) {
             break;
             case 'clearAllPendingJobs':
                 obj.db.deletePendingJobsForNode(myparent.dbNodeKey);
+            break;
+            case 'loadVariables':
+                obj.updateFrontEnd( { variables: true } );
+            break;
+            case 'newVar':
+                obj.db.addVariable(command.name, command.scope, command.scopeTarget, command.value)
+                .then(() => {
+                    obj.updateFrontEnd( { variables: true } );
+                })
+            break;
+            case 'editVar':
+                obj.db.update(command.id, { 
+                    name: command.name, 
+                    scope: command.scope, 
+                    scopeTarget: command.scopeTarget,
+                    value: command.value
+                })
+                .then(() => {
+                    obj.updateFrontEnd( { variables: true } );
+                })
+            break;
+            case 'deleteVar':
+                obj.db.delete(command.id)
+                .then(() => {
+                    obj.updateFrontEnd( { variables: true } );
+                })
             break;
             default:
                 console.log('PLUGIN: ScriptTask: unknown action');

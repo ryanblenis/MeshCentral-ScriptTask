@@ -87,11 +87,11 @@
     .infoContent {
       display: none;
     }
-    #nHistTbl, #sHistTbl, #nSchTbl, #sSchTbl {
+    #nHistTbl, #sHistTbl, #nSchTbl, #sSchTbl, #varTbl {
         font-size: smaller;
         width: 100%;
     }
-    #nHistTbl td, #sHistTbl td, #nSchTbl td, #sSchTbl td {
+    #nHistTbl td, #sHistTbl td, #nSchTbl td, #sSchTbl td, #varTbl td {
         padding-left: 5px;
         padding-right: 5px;
     }
@@ -110,6 +110,9 @@
           background-color: #CCC;
     }
     .stSSRow:nth-child(odd) {
+          background-color: #CCC;
+    }
+    .stVRow:nth-child(odd) {
           background-color: #CCC;
     }
     .delSched {
@@ -166,6 +169,9 @@
         float: left;
         width: 33%;
     }
+    .flink {
+        cursor: pointer;
+    }
 </style>
 <body onload="doOnLoad();">
 <div id="scriptTaskUser">
@@ -173,6 +179,7 @@
   Upload: <input type="file" id="files" name="files[]" multiple onchange="fileUpload();"/>
   <hr />
   <div id="controlBar">
+    <span onclick="goNew();">New</span>
     <span onclick="goRename();">Rename</span>
     <span onclick="goEdit();">Edit</span>
     <span onclick="goDelete();">Delete</span>
@@ -228,6 +235,14 @@
                 <th>Time</th><th>Run By</th><th>Node</th><th>Status</th><th>Return Value</th>
             </table>
         </div>
+        <div class="infoBar">Variables</div>
+        <div id="variables" class="infoContent">
+            <table id="varTbl" cellspacing="0" cellpadding="0">
+                <th>Variable Name</th><th>Value</th><th>Scope</th><th>Scope Target</th><th>Action</th>
+            </table>
+            <br />
+            <span class="flink" onclick="newVar();return false;">[+]</span>
+        </div>
       </div>
       
     </div>
@@ -240,6 +255,8 @@ var elementDragged = false;
 var dragCounter = 0;
 var draggedId = null;
 var nodesObj = {};
+var variables = [];
+var varScopes = { global: 'Global', script: 'Script', mesh: 'Mesh', node: 'Node' };
 
 function onlyUnique(value, index, self) { 
     return self.indexOf(value) === index;
@@ -323,6 +340,7 @@ function doOnLoad() {
   selectPreviouslySelectedScript();
   updateNodesTable();
   parent.meshserver.send({ 'action': 'plugin', 'plugin': 'scripttask', 'pluginaction': 'loadNodeHistory', 'nodeId': parent.currentNode._id });
+  parent.meshserver.send({ 'action': 'plugin', 'plugin': 'scripttask', 'pluginaction': 'loadVariables', 'nodeId': parent.currentNode._id });  
 }
 
 function selectPreviouslySelectedScript() {
@@ -568,6 +586,72 @@ function redrawScriptTree() {
       }
       return nh;
   }
+  parent.pluginHandler.scripttask.loadVariables = function(message) {
+      if (message.event.vars.length) {
+          var vars = message.event.vars;
+          vars.forEach(function(vd) {
+              switch (vd.scope) {
+                  case 'global':
+                      vd.scopeTargetTxt = vd.scopeTargetHtml = 'N/A';
+                  break;
+                  case 'script':
+                      var s = scriptTree.filter(obj => { return obj._id === vd.scopeTarget })[0]
+                      vd.scopeTargetHtml = '<span title="' + s.path + '">' + s.name + '</span>';
+                      vd.scopeTargetTxt = s.name;
+                  break;
+                  case 'mesh':
+                      vd.scopeTargetTxt = vd.scopeTargetHtml = parent.meshes[vd.scopeTarget].name;
+                  break;
+                  case 'node':
+                      var n = parent.nodes.filter(obj => { return obj._id === vd.scopeTarget })[0]
+                      vd.scopeTargetHtml = '<span title="' + n.meshnamel + '">' + n.name + '</span>';
+                      vd.scopeTargetTxt = n.name;
+                  break;
+                  default:
+                      vd.scopeTargetTxt = vd.scopeTargetHtml = 'N/A';
+                  break;
+              }
+              vd.scopeTxt = varScopes[vd.scope];
+          })
+          var ordering = { 'global': 0, 'script': 1, 'mesh': 2, 'node': 3 }
+          vars.sort((a, b) => {
+              return (ordering[a.scope] - ordering[b.scope]) 
+                || a.name.localeCompare(b.name)
+                || a.scopeTargetTxt.localeCompare(b.scopeTargetTxt);
+          });
+          variables = vars;
+          parseVariables();
+      }
+  }
+  function parseVariables() {
+      var vTbl = document.getElementById('varTbl');
+      var rows = vTbl.querySelectorAll('.stVRow');
+      
+      if (rows.length) {
+          rows.forEach(function(r) {
+             r.parentNode.removeChild(r); 
+          });
+      }
+      var scriptEl = document.querySelectorAll('.liselected');
+      if (scriptEl.length != 1) return;
+      var el = scriptEl[0];
+      scopeTargetScriptId = el.getAttribute('x-data-id');
+      variables.forEach(function(vd) {
+          if (vd.scope == 'script' && vd.scopeTarget != scopeTargetScriptId) return;
+          if (vd.scope == 'mesh' && vd.scopeTarget != parent.currentNode.meshid) return;
+          if (vd.scope == 'node' && vd.scopeTarget != parent.currentNode._id) return;
+          let actionHtml = '<span class="flink" onclick="editVar(this);">Edit</span> <span class="flink" onclick="delVar(this);">Delete</span>';
+          let tpl = '<td>' + vd.name + '</td> \
+            <td>' + vd.value + '</td> \
+            <td>' + vd.scopeTxt + '</td> \
+            <td>' + vd.scopeTargetHtml + '</td> \
+            <td>' + actionHtml + '</td>';
+          let tr = vTbl.insertRow(-1);
+          tr.innerHTML = tpl;
+          tr.classList.add('stVRow');
+          tr.setAttribute('x-data-id', vd._id);
+      })
+  }
   parent.pluginHandler.scripttask.loadSchedule = function(message) {
       // cache script names
       var nNames = {}, sNames = {};
@@ -711,6 +795,68 @@ function redrawScriptTree() {
     }
     return true;
   }
+  function newVarEx() {
+      var name = parent.document.getElementById('stvarname').value;
+      var scope = parent.document.getElementById('stvarscope').value;
+      var value = parent.document.getElementById('stvarvalue').value;
+      var scopeTarget = null;
+      if (scope == 'script') {
+          var scriptEl = document.querySelectorAll('.liselected');
+          if (scriptEl.length != 1) return;
+          var el = scriptEl[0];
+          scopeTarget = el.getAttribute('x-data-id');
+      } else if (scope == 'mesh') {
+          scopeTarget = parent.currentNode.meshid;
+      } else if (scope == 'node') {
+          scopeTarget = parent.currentNode._id;
+      }
+      parent.meshserver.send({ action: 'plugin', plugin: 'scripttask', pluginaction: 'newVar', name: name, scope: scope, scopeTarget: scopeTarget, value: value, currentNodeId: parent.currentNode._id });
+
+  }
+  function newVar() {
+      parent.setDialogMode(2, "New Variable", 3, newVarEx, 'Variable Name: <input type="text" id=stvarname /><br />Scope: <select id=stvarscope><option value="global">Global</option><option value="script">Script</option><option value="mesh">Mesh</option><option value="node">Node</option></select><br />Value: <input id="stvarvalue" type="text" />'); 
+      parent.focusTextBox('stvarname');
+  }
+  function editVarEx() {
+      var varid = parent.document.getElementById('stvarid').value;
+      var name = parent.document.getElementById('stvarname').value;
+      var scope = parent.document.getElementById('stvarscope').value;
+      var value = parent.document.getElementById('stvarvalue').value;
+      var scopeTarget = null;
+      if (scope == 'script') {
+          var scriptEl = document.querySelectorAll('.liselected');
+          if (scriptEl.length != 1) return;
+          var el = scriptEl[0];
+          scopeTarget = el.getAttribute('x-data-id');
+      } else if (scope == 'mesh') {
+          scopeTarget = parent.currentNode.meshid;
+      } else if (scope == 'node') {
+          scopeTarget = parent.currentNode._id;
+      }
+      parent.meshserver.send({ action: 'plugin', plugin: 'scripttask', pluginaction: 'editVar', id: varid, name: name, scope: scope, scopeTarget: scopeTarget, value: value, currentNodeId: parent.currentNode._id });
+  }
+  function editVar(el) {
+      var vid = el.parentNode.parentNode.getAttribute('x-data-id');
+      var v = variables.filter(obj => { return obj._id === vid })[0];
+      var soptHtml = '';
+      for (const [k, t] of Object.entries(varScopes)) {
+          soptHtml += '<option value="' + k + '"';
+          if (v.scope == k) soptHtml += ' selected';
+          soptHtml += '>' + t + '</option>';
+      }
+      parent.setDialogMode(2, "Edit Variable", 3, editVarEx, 'Variable Name: <input type="text" id=stvarname value="' + v.name + '" /><br />Scope: <select id=stvarscope>' + soptHtml + '</select><br />Value: <input id="stvarvalue" type="text" value="' + v.value + '" /><input type="hidden" id="stvarid" value="' + vid + '" />'); 
+      parent.focusTextBox('stvarname');
+  }
+  function delVarEx() {
+      var varid = parent.document.getElementById('stvarid').value;
+      parent.meshserver.send({ action: 'plugin', plugin: 'scripttask', pluginaction: 'deleteVar', id: varid, currentNodeId: parent.currentNode._id });
+
+  }
+  function delVar(el) {
+      var vid = el.parentNode.parentNode.getAttribute('x-data-id');
+      var v = variables.filter(obj => { return obj._id === vid })[0];
+      parent.setDialogMode(2, "Delete Variable", 3, delVarEx, 'Are you sure you want to delete this?<input type="hidden" id="stvarid" value="' + vid + '" /><br />Name: '+ v.name +'<br />Scope: '+ varScopes[v.scope] +'<br />Value: '+ v.value); 
+  }
   function renameEx() {
     var name = parent.document.getElementById('stfilename').value;
     var id = parent.document.getElementById('stid').value;
@@ -723,6 +869,22 @@ function redrawScriptTree() {
     var name = el.querySelector('.fname').innerHTML;
     var id = el.getAttribute('x-data-id');
     parent.setDialogMode(2, "Rename " + name, 3, renameEx, '<input type="text"  value="' + name + '" id=stfilename style=width:100% /><input type="hidden" id="stid" value="' + id + '" />'); 
+    parent.focusTextBox('stfilename');
+  }
+  function newEx() {
+    var name = parent.document.getElementById('stfilename').value;
+    var parent_id = parent.document.getElementById('stfolderid').value;
+    var fileType = parent.document.getElementById('stfiletype').value;
+    parent.meshserver.send({ action: 'plugin', plugin: 'scripttask', pluginaction: 'new', name: name, parent_id: parent_id, filetype: fileType, currentNodeId: parent.currentNode._id });
+  }
+  function goNew() {
+    var scriptEl = document.querySelectorAll('.liselected');
+    var folder_id = null;
+    if (scriptEl.length > 0) {
+        var el = scriptEl[0];
+        folder_id = el.getAttribute('x-data-folder');
+    }
+    parent.setDialogMode(2, "New Script", 3, newEx, 'Name: <input type="text"  value="' + name + '" id=stfilename style=width:100% /><br />Type:<select id="stfiletype"><option value="bash">Bash</option><option value="bat">BAT</option><option value="ps1">PS1</option></select><input type="hidden" id="stfolderid" value="' + folder_id + '" />'); 
     parent.focusTextBox('stfilename');
   }
   function newFolderEx() {
@@ -752,6 +914,7 @@ function redrawScriptTree() {
     if (xdi != el.getAttribute('x-data-folder')) {
         parent.meshserver.send({ action: 'plugin', plugin: 'scripttask', pluginaction: 'loadScriptHistory', scriptId: xdi });
     }
+    parseVariables();
   }
   function deleteEx() {
     var id = parent.document.getElementById('stdelid').value;

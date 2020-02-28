@@ -200,6 +200,46 @@ module.exports.CreateDB = function(meshserver) {
             var oldTime = nowTime - (86400 * 90); // 90 days
             return obj.scriptFile.deleteMany( { type: 'job', completeTime: { $lte: oldTime } } );
         };
+        obj.addVariable = function(name, scope, scopeTarget, value) {
+            var vObj = { 
+                type: 'variable',
+                name: name,
+                scope: scope,
+                scopeTarget: scopeTarget,
+                value: value
+            };
+            return obj.scriptFile.insertOne(vObj);
+        };
+        obj.getVariables = function(limiters) {
+            if (limiters != null) {
+                var find = { 
+                    type: 'variable',
+                    name: { $in: limiters.names },
+                    $or: [ 
+                        { scope: 'global' },
+                        { $and: [
+                            { scope: 'script' },
+                            { scopeTarget: limiters.scriptId }
+                          ]
+                        },
+                        { $and: [
+                            { scope: 'mesh' },
+                            { scopeTarget: limiters.meshId }
+                          ]
+                        },
+                        { $and: [
+                            { scope: 'node' },
+                            { scopeTarget: limiters.nodeId }
+                          ]
+                        }
+                    ]
+                };
+                return obj.scriptFile.find(find).sort({ name: 1 }).toArray();
+            }
+            else {
+                return obj.scriptFile.find({ type: 'variable' }).sort({ name: 1 }).toArray();
+            }
+        };
         obj.checkDefaults = function() {
             obj.scriptFile.find( { type: 'folder', name: 'Shared', path: 'Shared' } ).toArray()
             .then(found => {

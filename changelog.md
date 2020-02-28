@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Known Issues]
 - None. Please feel free to submit an issue via [GitHub](https://github.com/ryanblenis/MeshCentral-ScriptTask) if you find anything.
 
+## [0.0.14] - 2020-02-28
+### Added
+- Add new script from ScriptTask plugin without dragging/uploading an existing script
+- Variables introduced. Supports global, script, mesh, and node level. Overridden in that order.
+
 ## [0.0.13] - 2020-02-15
 ### Fixed
 - Folder rename function now working as intended
