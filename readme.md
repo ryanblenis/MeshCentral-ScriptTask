@@ -41,6 +41,7 @@ Restart your MeshCentral server after making this change.
 - Variables with the same name will override each other in the above order (ex. Global variable testVariable will be overridden by Script variable testVariable will be overridden by Mesh variable Test will be overridden by Node variable testVariable if they exist and apply to the node running the script)
 - Variables found in a script which do not correspond with a defined variable will be replaced with VAR_NOT_FOUND
 - Variables are assigned during job dispatch (e.g. when the job is sent to the node), so the latest script and variable values will be accounted for, should they have changed since a job or scheduled job were defined.
+- Variables in scripts must be defined by hashtags on both sides and not contain spaces. (E.g. #myVar#)
 
 ## Getting Started
 Drag and drop some of your favorite admin scripts on the file tree. You'll then be able to run them immediately on endpoints (nodes).

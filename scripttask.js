@@ -14,6 +14,7 @@ module.exports.scripttask = function (parent) {
     obj.db = null;
     obj.intervalTimer = null;
     obj.debug = obj.meshServer.debug;
+    obj.VIEWS = __dirname + '/views/';
     obj.exports = [      
         'onDeviceRefreshEnd',
         'resizeContent',
@@ -189,7 +190,7 @@ module.exports.scripttask = function (parent) {
         {
             // admin wants admin, grant
             var vars = {};
-            res.render('admin', vars);
+            res.render(obj.VIEWS + 'admin', vars);
             return;
         } else if (req.query.admin == 1 && (user.siteadmin & 0xFFFFFFFF) == 0) {
             // regular user wants admin
@@ -206,16 +207,16 @@ module.exports.scripttask = function (parent) {
                 .then((scripts) => {
                     if (scripts[0].filetype == 'proc') {
                         vars.procData = JSON.stringify(scripts[0]);
-                        res.render('procedit', vars);
+                        res.render(obj.VIEWS + 'procedit', vars);
                     } else {
                         vars.scriptData = JSON.stringify(scripts[0]);
-                        res.render('scriptedit', vars);
+                        res.render(obj.VIEWS + 'scriptedit', vars);
                     }
                 });
                 return;
             } else if (req.query.schedule == 1) {
                 var vars = {};
-                res.render('schedule', vars);
+                res.render(obj.VIEWS + 'schedule', vars);
                 return;
             }
             // default user view (tree)
@@ -223,7 +224,7 @@ module.exports.scripttask = function (parent) {
             obj.db.getScriptTree()
             .then(tree => {
               vars.scriptTree = JSON.stringify(tree);
-              res.render('user', vars);
+              res.render(obj.VIEWS + 'user', vars);
             });
             return;
         } else if (req.query.include == 1) {
