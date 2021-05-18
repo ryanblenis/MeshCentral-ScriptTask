@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Known Issues]
 - None. Please feel free to submit an issue via [GitHub](https://github.com/ryanblenis/MeshCentral-ScriptTask) if you find anything.
 
+## [0.0.16] - 2021-05-18
+### Fixed
+- Drag/drop scripts between folders
+
 ## [0.0.15] - 2020-03-07
 ### Fixed
 - Prevent race condition with conflicting plugins changing the app views directory by using absolute paths

@@ -998,8 +998,7 @@ function redrawScriptTree() {
   
   function dropMove(evt) {
     const move_id = evt.dataTransfer.getData('text');
-    const container_id = evt.target.getAttribute('x-data-id');
-    
+    const container_id = evt.target.parentNode.getAttribute('x-data-id');
     parent.meshserver.send({ action: 'plugin', plugin: 'scripttask', pluginaction: 'move', id: move_id, to: container_id });
   }
   // file upload events
