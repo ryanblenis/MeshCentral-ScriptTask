@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Known Issues]
 - None. Please feel free to submit an issue via [GitHub](https://github.com/ryanblenis/MeshCentral-ScriptTask) if you find anything.
 
+## [0.0.17] - 2021-10-07
+### Fixed
+- Compatibility with MeshCentral > 0.9.7
+
 ## [0.0.16] - 2021-05-18
 ### Fixed
 - Drag/drop scripts between folders
