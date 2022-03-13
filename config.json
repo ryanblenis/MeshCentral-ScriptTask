@@ -1,7 +1,7 @@
 {
   "name": "ScriptTask",
   "shortName": "scripttask",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "author": "Ryan Blenis",
   "description": "Script (PowerShell, BAT, Bash) runner for endpoints",
   "hasAdminPanel": false,
@@ -14,5 +14,5 @@
     "url": "https://github.com/ryanblenis/MeshCentral-ScriptTask.git"
   },
   "versionHistoryUrl": "https://api.github.com/repos/ryanblenis/MeshCentral-ScriptTask/tags",
-  "meshCentralCompat": ">=0.9.29"
+  "meshCentralCompat": ">=0.9.98"
 }
