@@ -13,8 +13,8 @@ A script running plugin for the [MeshCentral2](https://github.com/Ylianst/MeshCe
 >     },
 Restart your MeshCentral server after making this change.
 
- To install, simply add the plugin configuration URL when prompted:
- `https://raw.githubusercontent.com/ryanblenis/MeshCentral-ScriptTask/master/config.json`
+ To install this version of the plugin, simply add the plugin configuration URL when prompted:
+ `https://raw.githubusercontent.com/crettien/MeshCentral-ScriptTask/master/config.json`
 
 ## Features
 - Add scripts to a central store
