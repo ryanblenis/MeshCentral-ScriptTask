@@ -1,3 +1,5 @@
+
+## This is fork with my fixes
 # MeshCentral-ScriptTask
 
 A script running plugin for the [MeshCentral2](https://github.com/Ylianst/MeshCentral) Project. The plugin supports PowerShell, BAT, and Bash scripts. Windows, MacOS, and Linux endpoints are all supported. PowerShell can be run on any OS that has PowerShell installed, not just Windows.
@@ -14,7 +16,7 @@ A script running plugin for the [MeshCentral2](https://github.com/Ylianst/MeshCe
 Restart your MeshCentral server after making this change.
 
  To install, simply add the plugin configuration URL when prompted:
- `https://raw.githubusercontent.com/ryanblenis/MeshCentral-ScriptTask/master/config.json`
+ `https://raw.githubusercontent.com/yourh3ro/MeshCentral-ScriptTask/master/config.json`
 
 ## Features
 - Add scripts to a central store
