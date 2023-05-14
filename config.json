@@ -1,17 +1,17 @@
 {
   "name": "ScriptTask",
   "shortName": "scripttask",
-  "version": "0.0.18",
+  "version": "0.0.18b",
   "author": "Ryan Blenis",
-  "description": "Script (PowerShell, BAT, Bash) runner for endpoints",
+  "description": "Script (PowerShell, BAT, Bash) runner for endpoints. Modified beta version by smartekIT",
   "hasAdminPanel": false,
-  "homepage": "https://github.com/ryanblenis/MeshCentral-ScriptTask",
-  "changelogUrl": "https://raw.githubusercontent.com/ryanblenis/MeshCentral-ScriptTask/master/changelog.md",
-  "configUrl": "https://raw.githubusercontent.com/ryanblenis/MeshCentral-ScriptTask/master/config.json",
-  "downloadUrl": "https://github.com/ryanblenis/MeshCentral-ScriptTask/archive/master.zip",
+  "homepage": "https://github.com/smartekIT/MeshCentral-ScriptTask",
+  "changelogUrl": "https://raw.githubusercontent.com/smartekIT/MeshCentral-ScriptTask/master/changelog.md",
+  "configUrl": "https://raw.githubusercontent.com/smartekIT/MeshCentral-ScriptTask/master/config.json",
+  "downloadUrl": "https://github.com/smartekIT/MeshCentral-ScriptTask/archive/master.zip",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ryanblenis/MeshCentral-ScriptTask.git"
+    "url": "https://github.com/smartekIT/MeshCentral-ScriptTask.git"
   },
   "versionHistoryUrl": "https://api.github.com/repos/ryanblenis/MeshCentral-ScriptTask/tags",
   "meshCentralCompat": ">=0.9.98"
