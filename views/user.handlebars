@@ -457,6 +457,7 @@ function redrawScriptTree() {
   var str = '';
   var indent = 0;
   var folder_id = null;
+  str = '<div style="display: block;overflow-y: scroll;max-height: 650px;">'
   scriptTree.forEach(function(f) {
     if (f.path != lastpath && f.type == 'folder') {
       indent = (f.path.match(/\//g) || []).length + 1;
