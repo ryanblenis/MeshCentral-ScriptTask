@@ -457,6 +457,7 @@ function redrawScriptTree() {
   var str = '';
   var indent = 0;
   var folder_id = null;
+  str += '<div style="display: block;overflow-y: auto;max-height: 700px;">'
   scriptTree.forEach(function(f) {
     if (f.path != lastpath && f.type == 'folder') {
       indent = (f.path.match(/\//g) || []).length + 1;
@@ -469,9 +470,10 @@ function redrawScriptTree() {
     if (f.type != 'folder') {
         str += '<div id="' + f._id + '" draggable="true"  x-data-path="' + f.path + '" x-data-id="' + f._id + '" x-data-folder="' + folder_id + '" style="margin-left: ' + indent + 'em;" class="liscript" onclick="goScript(this);"><span class="fname">' + f.name + '</span> [<span class="ftype">' + f.filetype + '</span>]</div>';
     }
-    document.getElementById('scriptContainer').innerHTML = str;
+
   });
-  
+  str += '</div>';
+  document.getElementById('scriptContainer').innerHTML = str;
   var liScripts = document.querySelectorAll('.liscript');
   var liFolders = document.querySelectorAll('.lifolder');
   liScripts.forEach(function(el) {
