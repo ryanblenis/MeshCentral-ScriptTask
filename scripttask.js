@@ -45,15 +45,15 @@ module.exports.scripttask = function (parent) {
             tabTitle: 'ScriptTask',
             tabId: 'pluginScriptTask'
         });
-        QA('pluginScriptTask', '<iframe id="pluginIframeScriptTask" style="width: 100%; height: 800px;" scrolling="no" frameBorder=0 src="/pluginadmin.ashx?pin=scripttask&user=1" />');
+        QA('pluginScriptTask', '<iframe id="pluginIframeScriptTask" style="width: 100%; height: 700px; overflow: auto" scrolling="yes" frameBorder=0 src="/pluginadmin.ashx?pin=scripttask&user=1" />');
     };
     // may not be needed, saving for later. Can be called to resize iFrame
     obj.resizeContent = function() {
         var iFrame = document.getElementById('pluginIframeScriptTask');
-        var newHeight = 800;
-        var sHeight = iFrame.contentWindow.document.body.scrollHeight;
-        if (sHeight > newHeight) newHeight = sHeight;
-        if (newHeight > 1600) newHeight = 1600;
+        var newHeight = 700;
+        //var sHeight = iFrame.contentWindow.document.body.scrollHeight;
+        //if (sHeight > newHeight) newHeight = sHeight;
+        //if (newHeight > 1600) newHeight = 1600;
         iFrame.style.height = newHeight + 'px';
     };
     
