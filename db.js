@@ -196,7 +196,8 @@ module.exports.CreateDB = function(meshserver) {
         };
         obj.deleteOldHistory = function() {
             var nowTime = Math.floor(new Date() / 1000);
-            var oldTime = nowTime - (86400 * 90); // 90 days
+            //var oldTime = nowTime - (86400 * 90); // 90 days
+            var oldTime = nowTime - (86400 * 30); // 30 days
             return obj.scriptFile.deleteMany( { type: 'job', completeTime: { $lte: oldTime } } );
         };
         obj.addVariable = function(name, scope, scopeTarget, value) {
@@ -263,7 +264,7 @@ module.exports.CreateDB = function(meshserver) {
               // Check if we need to reset indexes
               var indexesByName = {}, indexCount = 0;
               for (var i in indexes) { indexesByName[indexes[i].name] = indexes[i]; indexCount++; }
-              if ((indexCount != 6) || (indexesByName['ScriptName1'] == null) || (indexesByName['ScriptPath1'] == null) || (indexesByName['JobTime1'] == null) || (indexesByName['JobNode1'] == null) || (indexesByName['JobScriptID1'] == null)) {
+              if ((indexCount != 7) || (indexesByName['ScriptName1'] == null) || (indexesByName['ScriptPath1'] == null) || (indexesByName['JobTime1'] == null) || (indexesByName['JobNode1'] == null) || (indexesByName['JobScriptID1'] == null)) || (indexesByName['ClearScriptHist'] == null)) {
                   // Reset all indexes
                   console.log('Resetting plugin (ScriptTask) indexes...');
                   obj.scriptFile.dropIndexes(function (err) {
@@ -272,6 +273,7 @@ module.exports.CreateDB = function(meshserver) {
                       obj.scriptFile.createIndex({ queueTime: 1 }, { name: 'JobTime1' });
                       obj.scriptFile.createIndex({ node: 1 }, { name: 'JobNode1' });
                       obj.scriptFile.createIndex({ scriptId: 1 }, { name: 'JobScriptID1' });
+                      obj.scriptFile.createIndex({ completeTime: 1 }, {name: 'ClearScriptHist', partialFilterExpression: { returnVal: { '$exists': true }, type: { '$eq': 'job' } }, expireAfterSeconds: 604800});
                   }); 
               }
           });
@@ -294,6 +296,7 @@ module.exports.CreateDB = function(meshserver) {
             obj.scriptFilex.ensureIndex({ fieldName: 'queueTime' });
             obj.scriptFilex.ensureIndex({ fieldName: 'node' });
             obj.scriptFilex.ensureIndex({ fieldName: 'scriptId' });
+            obj.scriptFilex.ensureIndex({ fieldName: 'completeTime' });
         }
         obj.scriptFile = new NEMongo(obj.scriptFilex);
         formatId = function(id) { return id; };
