@@ -273,7 +273,7 @@ module.exports.CreateDB = function(meshserver) {
                       obj.scriptFile.createIndex({ queueTime: 1 }, { name: 'JobTime1' });
                       obj.scriptFile.createIndex({ node: 1 }, { name: 'JobNode1' });
                       obj.scriptFile.createIndex({ scriptId: 1 }, { name: 'JobScriptID1' });
-                      obj.scriptFile.createIndex({ completeTime: 1 }, {name: 'ClearScriptHist', partialFilterExpression: { returnVal: { '$exists': true }, type: { '$eq': 'job' } }, expireAfterSeconds: 604800});
+                      obj.scriptFile.createIndex({ completeTime: 1 }, {name: 'ClearScriptHist', partialFilterExpression: { returnVal: { '$exists': true }, type: { '$eq': 'job' } }, expireAfterSeconds: 2592000});
                   }); 
               }
           });
