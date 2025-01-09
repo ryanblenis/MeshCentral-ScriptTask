@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Known Issues]
 - None. Please feel free to submit an issue via [GitHub](https://github.com/ryanblenis/MeshCentral-ScriptTask) if you find anything.
 
+## [0.0.20] - 2025-01-08
+### Fixed
+- Merge PR fixing MeshCentral 1.1.35+ compatibility
+
 ## [0.0.19] - 2024-02-07
 ### Fixed
 - Merge PR fixing scroll bars and Powershell execution policy
