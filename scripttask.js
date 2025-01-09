@@ -656,7 +656,8 @@ module.exports.scripttask = function (parent) {
                 //obj.debug('ScriptTask', 'jobComplete Triggered', JSON.stringify(command));
                 var jobNodeHistory = null, scriptHistory = null;
                 var jobId = command.jobId, retVal = command.retVal, errVal = command.errVal, dispatchTime = command.dispatchTime;
-                var completeTime = Math.floor(new Date() / 1000);
+                //var completeTime = Math.floor(new Date() / 1000);
+                var completeTime = (new Date());
                 obj.db.update(jobId, {
                     completeTime: completeTime,
                     returnVal: retVal,
@@ -670,7 +671,8 @@ module.exports.scripttask = function (parent) {
                     })
                     .then(sId => {
                         if (sId == null) return Promise.resolve();
-                        return obj.db.update(sId, { lastRun: completeTime } )
+                        //return obj.db.update(sId, { lastRun: completeTime } )
+                        return obj.db.update(sId, { lastRun: dispatchTime } )
                         .then(() => {
                             obj.makeJobsFromSchedules(sId);
                         });
