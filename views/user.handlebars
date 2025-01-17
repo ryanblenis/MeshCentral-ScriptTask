@@ -231,6 +231,7 @@
         </div>
         <div class="infoBar">Script History</div>
         <div id="scriptHistory" class="infoContent">
+            <span class="flink" onclick="exportScriptHistory();return false;">[Export]</span>
             <table id="sHistTbl" cellspacing="0" cellpadding="0">
                 <th>Time</th><th>Run By</th><th>Node</th><th>Status</th><th>Return Value</th>
             </table>
@@ -1018,5 +1019,13 @@ function redrawScriptTree() {
   });
   dropZone.addEventListener('drop', handleFileSelect);
   
+  function exportScriptHistory() {
+    var isSelected = document.querySelectorAll('.liselected');
+    if (isSelected.length == 0) return;
+    var sel = isSelected[0];
+    var id = sel.getAttribute('x-data-id');
+    if (id == sel.getAttribute('x-data-folder')) return;
+    window.location = '/pluginadmin.ashx?pin=scripttask&export=1&dl='+id;
+  }
 </script>
 </html>

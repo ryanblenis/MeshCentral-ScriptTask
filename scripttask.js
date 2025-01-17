@@ -143,6 +143,54 @@ module.exports.scripttask = function (parent) {
           res.send(file.content);
         });
     };
+
+    obj.downloadHistory = function(req, res) {
+        var id = req.query.dl;
+
+        var nodeNames = {};
+        obj.meshServer.webserver.db.GetAllType('node', function (err, nodesData) {
+            nodesData.forEach(function(node){
+                nodeNames[node._id] = node.name; 
+            });
+        });
+
+        obj.db.getJobScriptHistory(id)
+        .then((scriptHistory) => {
+            var data = '"Request date","Scheduled date","Execution date","Node name","Script name","Run by","Status","Returned value"';
+            var scriptName = id;
+
+            scriptHistory.forEach(function(scriptExecution){
+                var nodeName = nodeNames[scriptExecution.node];
+                scriptName = scriptExecution.scriptName;
+                var requestDate = new Date(scriptExecution.queueTime * 1000).toLocaleString();
+                var scheduledDate = new Date(scriptExecution.dontQueueUntil * 1000).toLocaleString();
+                var runDate = new Date(scriptExecution.completeTime * 1000).toLocaleString();
+
+                var status;
+                var returnValue;
+                if(scriptExecution.returnVal != null){
+                    status = "Completed";
+                    returnValue = scriptExecution.returnVal;
+                }
+                else if(scriptExecution.jobSchedule != null){
+                    runDate = "";
+                    returnValue = "";
+                    
+                    status = scriptExecution.dontQueueUntil * 1000 > new Date().getTime() ? "Scheduled" : "Queued";
+                }
+                else{
+                    status = "Error";
+                    returnValue = scriptExecution.errorVal;
+                }
+
+                data += `\n"${requestDate}",${scheduledDate},"${runDate}","${nodeName}","${scriptExecution.scriptName}","${scriptExecution.runBy}","${status}","${returnValue}"`;
+            });
+
+            res.setHeader('Content-disposition', 'attachment; filename=export-' + scriptName + ".csv");
+            res.setHeader('Content-type', 'text/plain');
+            res.send(data);
+        });
+    };
     
     obj.updateFrontEnd = async function(ids){
         if (ids.scriptId != null) {
@@ -233,6 +281,9 @@ module.exports.scripttask = function (parent) {
                 case 'js':      res.contentType('text/javascript'); break;
             }
             res.sendFile(__dirname + '/includes/' + req.query.path); // don't freak out. Express covers any path issues.
+            return;
+        } else if (req.query.export == 1) {
+            obj.downloadHistory(req, res)
             return;
         }
         res.sendStatus(401); 
