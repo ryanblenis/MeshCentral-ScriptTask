@@ -17,6 +17,32 @@ var debug_flag = false;
 var runningJobs = [];
 var runningJobPIDs = {};
 
+var jobPingTimer = null;
+
+function startJobPing() {
+    if (jobPingTimer == null) {
+        jobPingTimer = setInterval(function() {
+            if (runningJobs.length == 0) {
+                clearInterval(jobPingTimer);
+                jobPingTimer = null;
+                return;
+            }
+            runningJobs.forEach(function(jobId) {
+                try {
+                    mesh.SendCommand({ 
+                        "action": "plugin", 
+                        "plugin": "scripttask",
+                        "pluginaction": "jobRunningPing",
+                        "jobId": jobId,
+                        "sessionid": _sessionid,
+                        "tag": "console"
+                    });
+                } catch(e){}
+            });
+        }, 60000); // 1 minute
+    }
+}
+
 var dbg = function(str) {
     if (debug_flag !== true) return;
     var fs = require('fs');
@@ -150,8 +176,8 @@ function runPowerShell(sObj, jObj) {
     const fs = require('fs');
     var rand =  Math.random().toString(32).replace('0.', '');
     
-    var oName = 'st' + rand + '.txt';
-    var pName = 'st' + rand + '.ps1';
+    var oName = 'tmp_st_' + rand + '.txt';
+    var pName = 'tmp_st_' + rand + '.ps1';
     var pwshout = '', pwsherr = '', cancontinue = false;
     try {
         fs.writeFileSync(pName, sObj.content);
@@ -221,8 +247,8 @@ function runPowerShellNonWin(sObj, jObj) {
     dbg('Path chosen is: ' + path);
     path = path + '/';
     
-    var oName = 'st' + rand + '.txt';
-    var pName = 'st' + rand + '.ps1';
+    var oName = 'tmp_st_' + rand + '.txt';
+    var pName = 'tmp_st_' + rand + '.ps1';
     var pwshout = '', pwsherr = '', cancontinue = false;
     try {
         var childp = require('child_process').execFile('/bin/sh', ['sh']);
@@ -298,8 +324,8 @@ function runBat(sObj, jObj) {
     }
     const fs = require('fs');
     var rand =  Math.random().toString(32).replace('0.', '');
-    var oName = 'st' + rand + '.txt';
-    var pName = 'st' + rand + '.bat';
+    var oName = 'tmp_st_' + rand + '.txt';
+    var pName = 'tmp_st_' + rand + '.bat';
     try {
         fs.writeFileSync(pName, sObj.content);
         var outstr = '', errstr = '';
@@ -372,8 +398,8 @@ function runBash(sObj, jObj) {
     //child.execFile(process.env['windir'] + '\\system32\\cmd.exe', ['/c', 'RunDll32.exe user32.dll,LockWorkStation'], { type: 1 });
     
     var rand =  Math.random().toString(32).replace('0.', '');
-    var oName = 'st' + rand + '.txt';
-    var pName = 'st' + rand + '.sh';
+    var oName = 'tmp_st_' + rand + '.txt';
+    var pName = 'tmp_st_' + rand + '.sh';
     try {
         fs.writeFileSync(path + pName, sObj.content);
         var outstr = '', errstr = '';
@@ -460,6 +486,7 @@ function runScript(sObj, jObj) {
         sObj.content = sObj.content.replace(new RegExp('#(.*?)#', 'g'), 'VAR_NOT_FOUND');
     }
     runningJobs.push(jObj.jobId);
+    startJobPing();
     dbg('Running Script '+ sObj._id);
     switch (sObj.filetype) {
         case 'ps1':

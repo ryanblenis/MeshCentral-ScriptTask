@@ -1,18 +1,18 @@
 {
   "name": "ScriptTask",
   "shortName": "scripttask",
-  "version": "0.0.20",
-  "author": "Ryan Blenis",
+  "version": "0.0.21",
+  "author": "Ryan Blenis / Pablo Navarro",
   "description": "Script (PowerShell, BAT, Bash) runner for endpoints",
   "hasAdminPanel": false,
-  "homepage": "https://github.com/ryanblenis/MeshCentral-ScriptTask",
-  "changelogUrl": "https://raw.githubusercontent.com/ryanblenis/MeshCentral-ScriptTask/master/changelog.md",
-  "configUrl": "https://raw.githubusercontent.com/ryanblenis/MeshCentral-ScriptTask/master/config.json",
-  "downloadUrl": "https://github.com/ryanblenis/MeshCentral-ScriptTask/archive/master.zip",
+  "homepage": "https://github.com/panreyes/MeshCentral-ScriptTask",
+  "changelogUrl": "https://raw.githubusercontent.com/panreyes/MeshCentral-ScriptTask/master/changelog.md",
+  "configUrl": "https://raw.githubusercontent.com/panreyes/MeshCentral-ScriptTask/master/config.json",
+  "downloadUrl": "https://github.com/panreyes/MeshCentral-ScriptTask/archive/master.zip",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ryanblenis/MeshCentral-ScriptTask.git"
+    "url": "https://github.com/panreyes/MeshCentral-ScriptTask.git"
   },
-  "versionHistoryUrl": "https://api.github.com/repos/ryanblenis/MeshCentral-ScriptTask/tags",
+  "versionHistoryUrl": "https://api.github.com/repos/panreyes/MeshCentral-ScriptTask/tags",
   "meshCentralCompat": ">=1.1.35"
 }

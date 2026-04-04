@@ -1,349 +1,510 @@
 <html>
+
 <head>
-    <script type="text/javascript" src="scripts/common-0.0.1.js"></script>
+  <script type="text/javascript" src="scripts/common-0.0.1.js"></script>
+  <link keeplink="1" type="text/css" href="styles/style-bootstrap.css" media="screen" rel="stylesheet" title="CSS">
+  <link type="text/css" href="styles/ol.css" media="screen" rel="stylesheet" title="CSS">
+  <link type="text/css" href="styles/ol3-contextmenu.min.css" media="screen" rel="stylesheet" title="CSS">
+  <link type="text/css" href="styles/xterm.css" media="screen" rel="stylesheet" title="CSS">
+  <link type="text/css" href="styles/flatpickr.min.css" media="screen" rel="stylesheet" title="CSS">
+  <link id="theme-stylesheet" href="styles/bootstrap.css" rel="stylesheet" title="CSS">
+  <link href="styles/select2.min.css" rel="stylesheet" title="CSS">
+  <link href="styles/select2-bootstrap-5-theme.min.css" rel="stylesheet" title="CSS">
+  <link type="text/css" href="styles/custom.css" media="screen" rel="stylesheet" title="CSS">
+  <link rel="apple-touch-icon" href="/favicon-303x303.png">
+  <script type="text/javascript" src="scripts/common-0.0.1.js"></script>
+  <script type="text/javascript" src="scripts/meshcentral.js"></script>
+  <script type="text/javascript" src="scripts/amt-0.2.0.js"></script>
+  <script type="text/javascript" src="scripts/amt-wsman-0.2.0.js"></script>
+  <script type="text/javascript" src="scripts/amt-desktop-0.0.2.js"></script>
+  <script type="text/javascript" src="scripts/amt-terminal-0.0.2.js"></script>
+  <script type="text/javascript" src="scripts/zlib.js"></script>
+  <script type="text/javascript" src="scripts/zlib-inflate.js"></script>
+  <script type="text/javascript" src="scripts/zlib-adler32.js"></script>
+  <script type="text/javascript" src="scripts/zlib-crc32.js"></script>
+  <script type="text/javascript" src="scripts/amt-redir-ws-0.1.0.js"></script>
+  <script type="text/javascript" src="scripts/amt-wsman-ws-0.2.0.js"></script>
+  <script type="text/javascript" src="scripts/agent-redir-ws-0.1.1.js"></script>
+  <script type="text/javascript" src="scripts/agent-redir-rtc-0.1.0.js"></script>
+  <script type="text/javascript" src="scripts/agent-desktop-0.0.2.js"></script>
+  <script type="text/javascript" src="scripts/agent-rdp-0.0.1.js"></script>
+  <script type="text/javascript" src="scripts/qrcode.min.js"></script>
+  <script type="text/javascript" src="scripts/xterm.js"></script>
+  <script type="text/javascript" src="scripts/xterm-addon-fit.js"></script>
+  <script type="text/javascript" src="scripts/flatpickr.js"></script>
+  <script type="text/javascript" src="mstsc/mstsc.js"></script>
+  <script type="text/javascript" src="mstsc/keyboard.js"></script>
+  <script type="text/javascript" src="mstsc/rle.js"></script>
+  <script type="text/javascript" src="mstsc/client.js"></script>
+  <script type="text/javascript" src="mstsc/canvas.js"></script>
+  <script type="text/javascript" src="scripts/jquery.js"></script>
+  <script type="text/javascript" src="scripts/bootstrap.js"></script>
+  <script type="text/javascript" src="scripts/fontawesome/all.min.js"></script>
+  <script type="text/javascript" src="scripts/select2.full.min.js"></script>
+  <script type="text/javascript" src="scripts/themes/theme-switcher.js"></script>
+  <script keeplink="1" type="text/javascript" src="scripts/u2f-api.js"></script>
+  <script keeplink="1" type="text/javascript" src="scripts/charts.js"></script>
+  <script keeplink="1" type="text/javascript" src="scripts/moment.js"></script>
+  <script keeplink="1" type="text/javascript" src="scripts/chartjs-adapter-moment.js"></script>
+  <script keeplink="1" type="text/javascript" src="scripts/filesaver.min.js"></script>
+  <script keeplink="1" type="text/javascript" src="scripts/ol.js"></script>
+  <script keeplink="1" type="text/javascript" src="scripts/ol3-contextmenu.js"></script>
+  <script keeplink="1" type="text/javascript" src="scripts/purify.js"></script>
+  <script keeplink="1" type="text/javascript" src="scripts/marked.js"></script>
+  <script type="text/javascript" src="scripts/custom.js"></script>
+
 </head>
 <style>
-    body {
-      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-    }
-    #dropBlock {
-      /*background-color: gray;
+  body {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  }
+
+  #dropBlock {
+    /*background-color: gray;
       text-align: center;
       height: 100%;
       width: 100%;
       position: absolute;
       float:left;*/
-      
-      width: 100%;
-      overflow: hidden;
-      position: absolute;
-      right: 437px;
-      padding-top: 100px;
-      text-align: center;
-      font-size: 1600%;
-      color: #AAA;
-    }
-    #scripts_endpoints {
-      width: 100%;
-      height: 100%;
-    }
-    #scriptContainer {
-      width: 35%;
-      height: 100%;
-      float: left;
-    }
-    #infoContainer {
-      width: 65%;
-      height: 100%;
-      float: right;
-      border-left: 1px;
-    }
-    .lifolder {
-      background: url(data:image/gif;base64,R0lGODlhEAAQAJEDAM2xV/Xur+XPgP///yH5BAEAAAMALAAAAAAQABAAAAJD3ISZIGHWUGihznesYDYATFVM+D2hJ4lgN1olxALAtAlmPCJvuMmJd6PJckDYwicrHhTD5o7plJmg0Uc0asNMkphHAQA7) no-repeat 16px;
-      padding-left: 35px;
-      cursor: pointer;
-      border: none;
-      margin-top: 1px;
-    }
-    .liscript {
-      background: url(data:image/gif;base64,R0lGODlhEAAQAJEDAPb19IGBgbq6uv///yH5BAEAAAMALAAAAAAQABAAAAIy3ISpxgcPH2ouQgFEw1YmxnUXKEaaEZZnVWZk66JwzKpvuwZzwOgwb/C1gIOA8Yg8DgoAOw==) no-repeat 16px;
-      padding-left: 35px;
-      cursor: pointer;
-      border: none;
-      margin-top: 1px;
-    }
-    .liselected {
-      background-color: lightgray;
-    }
-    #controlBar {
-      width: 100%;
-      height: 20px;
-      border-bottom: 1px solid black;
-      font-size: smaller;
-      margin-bottom: 7px;
-    }
-    #controlBar span {
-      cursor: pointer;
-      padding-left: 4px;
-      padding-right: 4px;
-    }
-    #controlBar > span:nth-child(n+2) {
-      border-left: 1px solid black;
-    }
-    .infoBar {
-      background-color: #777;
-      color: white;
-      cursor: pointer;
-      padding: 10px;
-      width: 100%;
-      border: none;
-      text-align: left;
-      outline: none;
-      font-size: 15px;
-    }
-    .infoBar.active, .infoBar:hover {
-      background-color: #555;
-    }
-    .infoContent {
-      display: none;
-    }
-    #nHistTbl, #sHistTbl, #nSchTbl, #sSchTbl, #varTbl {
-        font-size: smaller;
-        width: 100%;
-    }
-    #nHistTbl td, #sHistTbl td, #nSchTbl td, #sSchTbl td, #varTbl td {
-        padding-left: 5px;
-        padding-right: 5px;
-    }
-    .stNHRow, .stSHRow, .stNSRow, .stSSRow {
-        height: 36px;
-        max-height: 40px;
-        width: 100%;
-    }
-    .stNHRow:nth-child(odd) {
-          background-color: #CCC;
-    }
-    .stSHRow:nth-child(odd) {
-          background-color: #CCC;
-    }
-    .stNSRow:nth-child(odd) {
-          background-color: #CCC;
-    }
-    .stSSRow:nth-child(odd) {
-          background-color: #CCC;
-    }
-    .stVRow:nth-child(odd) {
-          background-color: #CCC;
-    }
-    .delSched {
-        cursor: pointer;
-    }
-    .nIcon {
-      width:16px;
-      margin-top:1px;
-      margin-left:2px;
-      height:16px;
-      display: inline-block;
-      margin-right: 10px;
-    }
-    .j1 {
-        background: url(../images/icons16.png) 0px 0px;
-        height: 16px;
-        width: 16px;
-        border: none;
-    }
-    .j2 {
-        background: url(../images/icons16.png) -16px 0px;
-        height: 16px;
-        width: 16px;
-        border: none;
-    }
-    .j3 {
-        background: url(../images/icons16.png) -32px 0px;
-        height: 16px;
-        width: 16px;
-        border: none;
-    }
-    .j4 {
-        background: url(../images/icons16.png) -48px 0px;
-        height: 16px;
-        width: 16px;
-        border: none;
-    }
-    .j5 {
-        background: url(../images/icons16.png) -64px 0px;
-        height: 16px;
-        width: 16px;
-        border: none;
-    }
-    .j6 {
-        background: url(../images/icons16.png) -80px 0px;
-        height: 16px;
-        width: 16px;
-        border: none;
-    }
-    .ftype {
-        font-size: small;
-    }
-    .tblFloat {
-        float: left;
-        width: 33%;
-    }
-    .flink {
-        cursor: pointer;
-    }
+
+    width: 100%;
+    overflow: hidden;
+    position: absolute;
+    right: 437px;
+    padding-top: 100px;
+    text-align: center;
+    font-size: 1600%;
+    color: #AAA;
+  }
+
+  #scripts_endpoints {
+    width: 100%;
+    height: 100%;
+  }
+
+  #scriptContainer {
+    width: 35%;
+    height: 100%;
+    float: left;
+    padding-right: 20px;
+  }
+
+  #infoContainer {
+    width: 65%;
+    height: 100%;
+    float: right;
+    border-left: 1px;
+    margin-left: 20px;
+  }
+
+  .lifolder {
+    background: url(data:image/gif;base64,R0lGODlhEAAQAJEDAM2xV/Xur+XPgP///yH5BAEAAAMALAAAAAAQABAAAAJD3ISZIGHWUGihznesYDYATFVM+D2hJ4lgN1olxALAtAlmPCJvuMmJd6PJckDYwicrHhTD5o7plJmg0Uc0asNMkphHAQA7) no-repeat 16px;
+    padding-left: 35px;
+    cursor: pointer;
+    border: none;
+    margin-top: 1px;
+  }
+
+  .liscript {
+    background: url(data:image/gif;base64,R0lGODlhEAAQAJEDAPb19IGBgbq6uv///yH5BAEAAAMALAAAAAAQABAAAAIy3ISpxgcPH2ouQgFEw1YmxnUXKEaaEZZnVWZk66JwzKpvuwZzwOgwb/C1gIOA8Yg8DgoAOw==) no-repeat 16px;
+    padding-left: 35px;
+    cursor: pointer;
+    border: none;
+    margin-top: 1px;
+  }
+
+  .liselected {
+    background-color: lightgray;
+  }
+
+  #controlBar {
+    width: 100%;
+    border-bottom: 1px solid #c0c0c0;
+    font-size: smaller;
+    margin-bottom: 7px;
+    padding: 5px 10px;
+  }
+
+  #controlBar span {
+    cursor: pointer;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  #controlBar>span:nth-child(n+2) {
+    border-left: 1px solid black;
+  }
+
+  .infoBara {
+    background-color: #777;
+    color: white;
+    cursor: pointer;
+    padding: 10px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+  }
+
+  .infoBar.active,
+  .infoBar:hover {
+    background-color: #555;
+  }
+
+  .infoContent {
+    display: none;
+  }
+
+  #nHistTbl,
+  #sHistTbl,
+  #nSchTbl,
+  #sSchTbl,
+  #varTbl {
+    font-size: smaller;
+    width: 100%;
+  }
+
+  #nHistTbl td,
+  #sHistTbl td,
+  #nSchTbl td,
+  #sSchTbl td,
+  #varTbl td {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  #nHistTbl tr,
+  #sHistTbl tr,
+  #nSchTbl tr,
+  #sSchTbl tr,
+  #varTbl tr {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .stNHRow,
+  .stSHRow,
+  .stNSRow,
+  .stSSRow {
+    height: 36px;
+    max-height: 40px;
+    width: 100%;
+  }
+
+  .stNHRow:nth-child(odd) {
+    background-color: #CCC;
+  }
+
+  .stSHRow:nth-child(odd) {
+    background-color: #CCC;
+  }
+
+  .stNSRow:nth-child(odd) {
+    background-color: #CCC;
+  }
+
+  .stSSRow:nth-child(odd) {
+    background-color: #CCC;
+  }
+
+  .stVRow:nth-child(odd) {
+    background-color: #CCC;
+  }
+
+  .delSched {
+    cursor: pointer;
+  }
+
+  .nIcon {
+    width: 16px;
+    margin-top: 1px;
+    margin-left: 2px;
+    height: 16px;
+    display: inline-block;
+    margin-right: 10px;
+  }
+
+  .j1 {
+    background: url(../images/icons16.png) 0px 0px;
+    height: 16px;
+    width: 16px;
+    border: none;
+  }
+
+  .j2 {
+    background: url(../images/icons16.png) -16px 0px;
+    height: 16px;
+    width: 16px;
+    border: none;
+  }
+
+  .j3 {
+    background: url(../images/icons16.png) -32px 0px;
+    height: 16px;
+    width: 16px;
+    border: none;
+  }
+
+  .j4 {
+    background: url(../images/icons16.png) -48px 0px;
+    height: 16px;
+    width: 16px;
+    border: none;
+  }
+
+  .j5 {
+    background: url(../images/icons16.png) -64px 0px;
+    height: 16px;
+    width: 16px;
+    border: none;
+  }
+
+  .j6 {
+    background: url(../images/icons16.png) -80px 0px;
+    height: 16px;
+    width: 16px;
+    border: none;
+  }
+
+  .ftype {
+    font-size: small;
+  }
+
+  .tblFloat {
+    float: left;
+    width: 33%;
+  }
+
+  .flink {
+    cursor: pointer;
+  }
 </style>
+
 <body onload="doOnLoad();">
-<div id="scriptTaskUser">
+  <div id="scriptTaskUser">
+    <!-- 
   <div id="dropBlock" style="display:none;"><b>&checkmark;</b></div>
   Upload: <input type="file" id="files" name="files[]" multiple onchange="fileUpload();"/>
   <hr />
-  <div id="controlBar">
-    <span onclick="goNew();">New</span>
-    <span onclick="goRename();">Rename</span>
-    <span onclick="goEdit();">Edit</span>
-    <span onclick="goDelete();">Delete</span>
-    <span onclick="goNewFolder();">New Folder</span>
-    <span onclick="goDownload();">Download</span>
-    <span onclick="goRun();">Run</span>
-  </div>
-  <div id="scripts_endpoints">
-    <div id="scriptContainer">
+  -->
+    <div id="controlBar">
+      <a href="#" class="btn btn-primary btn-sm" onclick="goNew();">New</a>
+      <a href="#" class="btn btn-primary btn-sm" onclick="goNewFolder();">New Folder</a>
+      <a href="#" class="btn btn-primary btn-sm" onclick="goEdit();">Edit</a>
+      <a href="#" class="btn btn-primary btn-sm" onclick="goRename();">Rename</a>
+      <a href="#" class="btn btn-primary btn-sm" onclick="goDownload();">Download</a>
+      <a href="#" class="btn btn-danger btn-sm" onclick="goDelete();">Delete</a>
+      <a href="#" class="btn btn-primary btn-sm" onclick="goRun();">Run now</a>
+      <a href="#" class="btn btn-sm btn-danger" onclick="clearPendingNodeJobs(); return false;">Cancel Pending Jobs</a>
+
     </div>
-    <div id="infoContainer">
-      <div id="history">
-          <div class="infoBar">Advanced Run</div>
+    <div id="scripts_endpoints">
+      <div id="scriptContainer">
+      </div>
+      <div id="infoContainer">
+        <div id="history">
+          <a href="#" id="btn_multiRun" class="infoBar btn btn-secondary btn-sm">Advanced Run</a>
+          <a href="#" id="btn_nSch" class="infoBar btn btn-secondary btn-sm">Node Schedules</a>
+          <a href="#" id="btn_nodeHistory" class="infoBar btn btn-secondary btn-sm">Node History</a>
+          <a href="#" id="btn_variables" class="infoBar btn btn-secondary btn-sm">Variables</a>
+          <a href="#" id="btn_sSch" class="infoBar btn btn-secondary btn-sm">Script Schedules</a>
+          <a href="#" id="btn_scriptHistory" class="infoBar btn btn-secondary btn-sm">Script History</a>
+
           <div id="multiRun" class="infoContent">
-              <div style="padding-top: 15px;"><button onclick="goAdvancedRun();">Schedule on Selected</button></div>
-              <div class="tblFloat">
-                  <table id="mRunTbl" cellspacing="0" cellpadding="0">
-                      <tr><td><label><input type="checkbox" onclick="selAllNodes(this);"> Select All</label></td></tr>
-                  </table>
-              </div>
-              <div class="tblFloat">
-                  <table id="mRunTblMesh" cellspacing="0" cellpadding="0">
-                      <tr><td>Meshes</td></tr>
-                  </table>
-              </div>
-              <div class="tblFloat">
-                  <table id="mRunTblTag" cellspacing="0" cellpadding="0">
-                      <tr><td>Tags</td></tr>
-                  </table>
-              </div>
+            <div style="padding-top: 15px;"><button class="btn btn-primary btn-sm" onclick="goAdvancedRun();">Schedule
+                on Selected</button></div>
+            <div class="tblFloat">
+              <table id="mRunTbl" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td><label><input type="checkbox" onclick="selAllNodes(this);"> Select All</label></td>
+                </tr>
+              </table>
+            </div>
+            <div class="tblFloat">
+              <table id="mRunTblMesh" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td>Meshes</td>
+                </tr>
+              </table>
+            </div>
+            <div class="tblFloat">
+              <table id="mRunTblTag" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td>Tags</td>
+                </tr>
+              </table>
+            </div>
           </div>
-          <div class="infoBar">Node Schedules</div>
           <div id="nSch" class="infoContent">
-              <table id="nSchTbl" cellspacing="0" cellpadding="0">
-                  <th>Script</th><th>Author</th><th>Every</th><th>Starting</th><th>Ending</th><th>Last Run</th><th>Next Run</th><th>Action</th>
-              </table>
+            <table id="nSchTbl" cellspacing="0" cellpadding="0">
+              <th>Script</th>
+              <th>Author</th>
+              <th>Every</th>
+              <th>Starting</th>
+              <th>Ending</th>
+              <th>Last Run</th>
+              <th>Next Run</th>
+              <th>Action</th>
+            </table>
           </div>
-          <div class="infoBar">Script Schedules</div>
           <div id="sSch" class="infoContent">
-              <table id="sSchTbl" cellspacing="0" cellpadding="0">
-                  <th>Node</th><th>Author</th><th>Every</th><th>Starting</th><th>Ending</th><th>Last Run</th><th>Next Run</th><th>Action</th>
-              </table>
+            <table id="sSchTbl" cellspacing="0" cellpadding="0">
+              <th>Node</th>
+              <th>Author</th>
+              <th>Every</th>
+              <th>Starting</th>
+              <th>Ending</th>
+              <th>Last Run</th>
+              <th>Next Run</th>
+              <th>Action</th>
+            </table>
           </div>
-        <div class="infoBar">Node History</div>
-        <div id="nodeHistory" class="infoContent">
+          <div id="nodeHistory" class="infoContent">
             <table id="nHistTbl" cellspacing="0" cellpadding="0">
-                <th>Time</th><th>Run By</th><th>Script</th><th>Status</th><th>Return Value</th>
+              <th>Time</th>
+              <th>Run By</th>
+              <th>Script</th>
+              <th>Status</th>
+              <th>Return Value</th>
             </table>
-        </div>
-        <div class="infoBar">Script History</div>
-        <div id="scriptHistory" class="infoContent">
+          </div>
+          <div id="scriptHistory" class="infoContent">
             <table id="sHistTbl" cellspacing="0" cellpadding="0">
-                <th>Time</th><th>Run By</th><th>Node</th><th>Status</th><th>Return Value</th>
+              <th>Time</th>
+              <th>Run By</th>
+              <th>Node</th>
+              <th>Status</th>
+              <th>Return Value</th>
             </table>
-        </div>
-        <div class="infoBar">Variables</div>
-        <div id="variables" class="infoContent">
+          </div>
+          <div id="variables" class="infoContent">
             <table id="varTbl" cellspacing="0" cellpadding="0">
-                <th>Variable Name</th><th>Value</th><th>Scope</th><th>Scope Target</th><th>Action</th>
+              <th>Variable Name</th>
+              <th>Value</th>
+              <th>Scope</th>
+              <th>Scope Target</th>
+              <th>Action</th>
             </table>
             <br />
-            <span class="flink" onclick="newVar();return false;">[+]</span>
+            <a href="#" class="btn btn-sm btn-primary" onclick="newVar();return false;">Add variable</a>
+          </div>
         </div>
+
       </div>
-      
     </div>
   </div>
-</div>
 </body>
 <script type="text/javascript">
-var scriptTree = {{{scriptTree}}};
-var elementDragged = false;
-var dragCounter = 0;
-var draggedId = null;
-var nodesObj = {};
-var variables = [];
-var varScopes = { global: 'Global', script: 'Script', mesh: 'Mesh', node: 'Node' };
+  var scriptTree = {{{ scriptTree }}};
+  var elementDragged = false;
+  var dragCounter = 0;
+  var draggedId = null;
+  var nodesObj = {};
+  var variables = [];
+  var varScopes = { global: 'Global', script: 'Script', mesh: 'Mesh', node: 'Node' };
 
-function onlyUnique(value, index, self) { 
+  function onlyUnique(value, index, self) {
     return self.indexOf(value) === index;
-}
-function resizeIframe() {
+  }
+  function resizeIframe() {
     document.body.style.height = 0;
     parent.pluginHandler.scripttask.resizeContent();
-}
-function updateNodesTable() {
-  let dRows = document.querySelectorAll('.stNodeRow');
-  dRows.forEach((r) => {
+  }
+  function updateNodesTable() {
+    let dRows = document.querySelectorAll('.stNodeRow');
+    dRows.forEach((r) => {
       r.parentNode.removeChild(r);
-  });
-  var tagList = [];
-  var nodeRowIns = document.querySelector('#mRunTbl');
-  parent.nodes.forEach(function(i) {
-      var item = {...i, ...{}};
+    });
+    var tagList = [];
+    var nodeRowIns = document.querySelector('#mRunTbl');
+    parent.nodes.sort((a, b) => (a.name > b.name) ? 1 : -1);
+    parent.nodes.forEach(function (i) {
+      var item = { ...i, ...{} };
       if (item.mtype == 2) {
-          item.meshName = parent.meshes[item['meshid']].name;
-          if (item._id == parent.currentNode._id) item.checked = 'checked '; else item.checked = '';
-          let tpl = `<tr class="stNodeRow">
+        item.meshName = parent.meshes[item['meshid']].name;
+        if (item._id == parent.currentNode._id) item.checked = 'checked '; else item.checked = '';
+        let tpl = `<tr class="stNodeRow">
             <td><label><input type="checkbox" ${item.checked} name="runOn[]" value="${item._id}"> <div class="nIcon j${item.icon}"></div>${item.name}</label></td>
           </tr>`;
-          nodeRowIns.insertAdjacentHTML('beforeend', tpl);
-          if (i.tags && i.tags.length) item.tags.forEach(function(t) { tagList.push(t) });
-          nodesObj[i._id] = i;
+        nodeRowIns.insertAdjacentHTML('beforeend', tpl);
+        if (i.tags && i.tags.length) item.tags.forEach(function (t) { tagList.push(t) });
+        nodesObj[i._id] = i;
       }
-  });
-  tagList = tagList.filter(onlyUnique); tagList = tagList.sort();
-  var nodeRowIns = document.querySelector('#mRunTblMesh');
-  for (const i in parent.meshes) { // parent.meshes.forEach(function(i) {
-      var item = {...parent.meshes[i], ...{}};
+    });
+    tagList = tagList.filter(onlyUnique); tagList = tagList.sort();
+    // parent.meshes.sort((a,b) => a.name.localeCompare(b.name));
+
+    // sort meshes by name
+    const sortedEntries = Object.entries(parent.meshes).sort(([, v1], [, v2]) => {
+      const a = v1 && v1.name ? v1.name : "";
+      const b = v2 && v2.name ? v2.name : "";
+      return a > b ? 1 : a < b ? -1 : 0;
+    });
+
+    parent.meshes = Object.fromEntries(sortedEntries);
+
+    var nodeRowIns = document.querySelector('#mRunTblMesh');
+    for (const i in parent.meshes) { // parent.meshes.forEach(function(i) {
+      var item = { ...parent.meshes[i], ...{} };
       if (item.mtype == 2) {
-          let tpl = `<tr class="stNodeRow">
+        let tpl = `<tr class="stNodeRow">
             <td><label><input type="checkbox" onclick="selNodesByMesh(this);" value="${item._id}"> ${item.name}</label></td>
           </tr>`;
-          nodeRowIns.insertAdjacentHTML('beforeend', tpl);
+        nodeRowIns.insertAdjacentHTML('beforeend', tpl);
       }
-  }
-  var nodeRowIns = document.querySelector('#mRunTblTag');
-  tagList.forEach(function(i) {
+    }
+    var nodeRowIns = document.querySelector('#mRunTblTag');
+    tagList.forEach(function (i) {
       let tpl = `<tr class="stNodeRow">
         <td><label><input type="checkbox" onclick="selNodesByTag(this)" value="${i}"> ${i}</label></td>
       </tr>`;
       nodeRowIns.insertAdjacentHTML('beforeend', tpl);
-  });
-}
+    });
+  }
 
-function selNodesByTag(el) {
+  function selNodesByTag(el) {
     var t = el.value;
     var allNodes = Q('mRunTbl').querySelectorAll('input[type="checkbox"][name="runOn[]"]');
     var checked = false;
     if (el.checked) checked = true;
-    allNodes.forEach(function(n) {
-        if (nodesObj[n.value].tags && nodesObj[n.value].tags.indexOf(t) > -1) n.checked = checked;      
+    allNodes.forEach(function (n) {
+      if (nodesObj[n.value].tags && nodesObj[n.value].tags.indexOf(t) > -1) n.checked = checked;
     });
     return true;
-}
-function selNodesByMesh(el) {
+  }
+  function selNodesByMesh(el) {
     var mid = el.value;
     var allNodes = Q('mRunTbl').querySelectorAll('input[type="checkbox"][name="runOn[]"]');
     var checked = false;
     if (el.checked) checked = true;
-    allNodes.forEach(function(n) {
-        if (nodesObj[n.value].meshid == mid) n.checked = checked;      
+    allNodes.forEach(function (n) {
+      if (nodesObj[n.value].meshid == mid) n.checked = checked;
     });
     return true;
-}
-function selAllNodes(el) {
-  var allNodes = Q('mRunTbl').querySelectorAll('input[type="checkbox"][name="runOn[]"]');
-  var checked = false;
-  if (el.checked) checked = true;
-  allNodes.forEach(function(n) {
-      n.checked = checked;      
-  });
-  return true;
-}
+  }
+  function selAllNodes(el) {
+    var allNodes = Q('mRunTbl').querySelectorAll('input[type="checkbox"][name="runOn[]"]');
+    var checked = false;
+    if (el.checked) checked = true;
+    allNodes.forEach(function (n) {
+      n.checked = checked;
+    });
+    return true;
+  }
 
-function doOnLoad() {
-  redrawScriptTree();
-  selectPreviouslySelectedScript();
-  updateNodesTable();
-  parent.meshserver.send({ 'action': 'plugin', 'plugin': 'scripttask', 'pluginaction': 'loadNodeHistory', 'nodeId': parent.currentNode._id });
-  parent.meshserver.send({ 'action': 'plugin', 'plugin': 'scripttask', 'pluginaction': 'loadVariables', 'nodeId': parent.currentNode._id });  
-}
+  function doOnLoad() {
+    redrawScriptTree();
+    selectPreviouslySelectedScript();
+    updateNodesTable();
+    parent.meshserver.send({ 'action': 'plugin', 'plugin': 'scripttask', 'pluginaction': 'loadNodeHistory', 'nodeId': parent.currentNode._id });
+    parent.meshserver.send({ 'action': 'plugin', 'plugin': 'scripttask', 'pluginaction': 'loadVariables', 'nodeId': parent.currentNode._id });
+  }
 
-function selectPreviouslySelectedScript() {
+  function selectPreviouslySelectedScript() {
     var sel_item = parent.getstore('_scripttask_sel_item', null)
     if (sel_item != null) {
       var s = document.getElementById(sel_item);
@@ -352,329 +513,355 @@ function selectPreviouslySelectedScript() {
         goScript(s);
       }
     }
-    if (sel_item != null)   parent.meshserver.send({ 'action': 'plugin', 'plugin': 'scripttask', 'pluginaction': 'loadScriptHistory', 'scriptId': sel_item });
-}
+    if (sel_item != null) parent.meshserver.send({ 'action': 'plugin', 'plugin': 'scripttask', 'pluginaction': 'loadScriptHistory', 'scriptId': sel_item });
+  }
 
-function goRun() {
+  function goRun() {
     var selScript = document.querySelectorAll('.liselected');
     if (selScript.length) {
       var scriptId = selScript[0].getAttribute('x-data-id');
-      if (scriptId == selScript[0].getAttribute('x-folder-id'))
-      {
-          parent.setDialogMode(2, "Oops!", 1, null, 'Please select a script. A folder is currently selected.'); 
+      if (scriptId == selScript[0].getAttribute('x-data-folder')) {
+        parent.setDialogMode(2, "Oops!", 1, null, 'Please select a script. A folder is currently selected.');
       }
       else {
-          parent.meshserver.send({ 'action': 'plugin', 'plugin': 'scripttask', 'pluginaction': 'runScript', 'scriptId': scriptId, 'nodes': [ parent.currentNode._id ], 'currentNodeId': parent.currentNode._id });
+        parent.meshserver.send({ 'action': 'plugin', 'plugin': 'scripttask', 'pluginaction': 'runScript', 'scriptId': scriptId, 'nodes': [parent.currentNode._id], 'currentNodeId': parent.currentNode._id });
       }
     } else {
-        parent.setDialogMode(2, "Oops!", 1, null, 'No script has been selected to run on the machines.'); 
+      parent.setDialogMode(2, "Oops!", 1, null, 'No script has been selected to run on the machines.');
     }
-}
+  }
 
-function goEdit() {
+  function goEdit() {
     var selScript = document.querySelectorAll('.liselected');
     if (selScript.length && (selScript[0].getAttribute('x-data-id') != selScript[0].getAttribute('x-data-folder'))) {
       var scriptId = selScript[0].getAttribute('x-data-id');
       window.open('/pluginadmin.ashx?pin=scripttask&user=1&edit=1&id=' + scriptId, '_blank');
-      window.callback = function(sd) {
-          parent.meshserver.send({ 'action': 'plugin', 'plugin': 'scripttask', 'pluginaction': 'editScript', 'scriptId': sd._id, 'scriptType': sd.type, 'scriptName': sd.name, 'scriptContent': sd.content, 'currentNodeId': parent.currentNode._id });
+      window.callback = function (sd) {
+        parent.meshserver.send({ 'action': 'plugin', 'plugin': 'scripttask', 'pluginaction': 'editScript', 'scriptId': sd._id, 'scriptType': sd.type, 'scriptName': sd.name, 'scriptContent': sd.content, 'currentNodeId': parent.currentNode._id });
       };
     } else {
-      parent.setDialogMode(2, "Oops!", 1, null, 'No script has been selected to edit.'); 
+      parent.setDialogMode(2, "Oops!", 1, null, 'No script has been selected to edit.');
     }
-}
+  }
 
-function goAdvancedRun() {
-  var cboxes = document.getElementsByName("runOn[]");
-  var sel = [];
-  
-  cboxes.forEach((n) => {
+  function goAdvancedRun() {
+    var cboxes = document.getElementsByName("runOn[]");
+    var sel = [];
+
+    cboxes.forEach((n) => {
       if (n.checked) sel.push(n.value);
-  });
-  if (sel.length == 0) {
-      parent.setDialogMode(2, "Oops!", 1, null, 'No machines have been selected.'); 
+    });
+    if (sel.length == 0) {
+      parent.setDialogMode(2, "Oops!", 1, null, 'No machines have been selected.');
       return;
-  }
-  var selScript = document.querySelectorAll('.liselected');
-  if (selScript.length) {
-    var scriptId = selScript[0].getAttribute('x-data-id');
-    var sWin = window.open('/pluginadmin.ashx?pin=scripttask&user=1&schedule=1', 'schedule', "width=800,height=600");
-    sWin.scriptId = scriptId;
-    sWin.nodes = sel;
-    window.schedCallback = function(opts) {
-        parent.meshserver.send({ 
-            'action': 'plugin', 
-            'plugin': 'scripttask', 
-            'pluginaction': 'addScheduledJob', 
-            'scriptId': opts.scriptId, 
-            'nodes': opts.nodes, 
-            'currentNodeId': parent.currentNode._id,
-            'schedule': opts
+    }
+    var selScript = document.querySelectorAll('.liselected');
+    if (selScript.length) {
+      var scriptId = selScript[0].getAttribute('x-data-id');
+      var sWin = window.open('/pluginadmin.ashx?pin=scripttask&user=1&schedule=1', 'schedule', "width=800,height=600");
+      sWin.scriptId = scriptId;
+      sWin.nodes = sel;
+      window.schedCallback = function (opts) {
+        parent.meshserver.send({
+          'action': 'plugin',
+          'plugin': 'scripttask',
+          'pluginaction': 'addScheduledJob',
+          'scriptId': opts.scriptId,
+          'nodes': opts.nodes,
+          'currentNodeId': parent.currentNode._id,
+          'schedule': opts
         });
-    };
-  } else {
-    parent.setDialogMode(2, "Oops!", 1, null, 'No script has been selected to run on the machines.'); 
-  }
-}
-
-var coll = document.getElementsByClassName("infoBar");
-for (var i = 0; i < coll.length; i++) {
-  coll[i].addEventListener("click", function() {
-    this.classList.toggle("active");
-    var content = this.nextElementSibling;
-    if (content.style.display === "block") {
-      content.style.display = "none";
+      };
     } else {
-      content.style.display = "block";
+      parent.setDialogMode(2, "Oops!", 1, null, 'No script has been selected to run on the machines.');
     }
-    content.style.maxHeight = '300px';
-    content.style.overflowY = 'scroll';
-    resizeIframe();
-  });
-}
+  }
 
-function goDownload() {
-  var isSelected = document.querySelectorAll('.liselected');
-  if (isSelected.length == 0) return;
-  var sel = isSelected[0];
-  var id = sel.getAttribute('x-data-id');
-  if (id == sel.getAttribute('x-data-folder')) return;
-  window.location = '/pluginadmin.ashx?pin=scripttask&user=1&dl='+id;
-}
-function addScript(name, content, path) {
-  // file type testing
-  var n = name.split('.').pop().toLowerCase();
-  if (content.split('\n')[0][0] == '#' && content.split('\n')[0][1] == '!') n = 'bash';
-  if (['ps1', 'bat', 'bash'].indexOf(n) !== -1) {
-    parent.meshserver.send({ action: 'plugin', plugin: 'scripttask', pluginaction: 'addScript', name: name, content: content, path: path, filetype: n });
+  var coll = document.getElementsByClassName("infoBar");
+  for (var i = 0; i < coll.length; i++) {
+    coll[i].addEventListener("click", function () {
+      for (var j = 0; j < coll.length; j++) {
+        coll[j].classList.remove("active");
+        //coll[j].nextElementSibling.style.display = "none";
+      }
+      $('#multiRun').hide(200);
+      $('#nSch').hide(200);
+      $('#nodeHistory').hide(200);
+      $('#variables').hide(200);
+      $('#sSch').hide(200);
+      $('#scriptHistory').hide(200);
+
+      this.classList.toggle("active");
+      //var content = this.nextElementSibling;
+      // var content = this;
+      var content = document.getElementById(this.id.slice(this.id.lastIndexOf('_') + 1));
+      if (content.style.display === "block") {
+        content.style.display = "none";
+      } else {
+        content.style.display = "block";
+      }
+      content.style.maxHeight = '400px';
+      content.style.overflowY = 'scroll';
+      resizeIframe();
+    });
   }
-  else {
-    parent.setDialogMode(2, "Oops!", 1, null, 'Currently accepted filetypes are .ps1, .bat, and bash scripts.'); 
+
+  function goDownload() {
+    var isSelected = document.querySelectorAll('.liselected');
+    if (isSelected.length == 0) return;
+    var sel = isSelected[0];
+    var id = sel.getAttribute('x-data-id');
+    if (id == sel.getAttribute('x-data-folder')) return;
+    window.location = '/pluginadmin.ashx?pin=scripttask&user=1&dl=' + id;
   }
-}
-function redrawScriptTree() {
-  var lastpath = null;
-  var str = '';
-  var indent = 0;
-  var folder_id = null;
-  str += '<div style="display: block;overflow-y: auto;max-height: 700px;">'
-  scriptTree.forEach(function(f) {
-    if (f.path != lastpath && f.type == 'folder') {
-      indent = (f.path.match(/\//g) || []).length + 1;
-      var name = f.path.match(/[^\/]+$/);
-      folder_id = f._id;
-      str += '<div draggable="true" x-data-path="' + f.path + '" x-data-id="' + f._id + '" x-data-folder="' + folder_id + '" style="margin-left: ' + indent + 'em;" class="lifolder" onclick="toggleCollapse(this);"><span class="fname">' + name + '</span></div>';
-      lastpath = f.path;
-      indent += 1;
+
+  function clearPendingNodeJobs() {
+    parent.meshserver.send({ 'action': 'plugin', 'plugin': 'scripttask', 'pluginaction': 'clearAllPendingJobs', 'nodeId': parent.currentNode._id });
+  }
+
+  function addScript(name, content, path) {
+    // file type testing
+    var n = name.split('.').pop().toLowerCase();
+    if (content.split('\n')[0][0] == '#' && content.split('\n')[0][1] == '!') n = 'bash';
+    if (['ps1', 'bat', 'bash'].indexOf(n) !== -1) {
+      parent.meshserver.send({ action: 'plugin', plugin: 'scripttask', pluginaction: 'addScript', name: name, content: content, path: path, filetype: n });
     }
-    if (f.type != 'folder') {
+    else {
+      parent.setDialogMode(2, "Oops!", 1, null, 'Currently accepted filetypes are .ps1, .bat, and bash scripts.');
+    }
+  }
+
+  function redrawScriptTree() {
+    var lastpath = null;
+    var str = '';
+    var indent = 0;
+    var folder_id = null;
+    str += '<div style="display: block;overflow-y: auto;max-height: 700px;">'
+    scriptTree.forEach(function (f) {
+      if (f.path != lastpath && f.type == 'folder') {
+        indent = (f.path.match(/\//g) || []).length + 1;
+        var name = f.path.match(/[^\/]+$/);
+        folder_id = f._id;
+        str += '<div draggable="true" x-data-path="' + f.path + '" x-data-id="' + f._id + '" x-data-folder="' + folder_id + '" style="margin-left: ' + indent + 'em;" class="lifolder" onclick="toggleCollapse(this);"><span class="fname">' + name + '</span></div>';
+        lastpath = f.path;
+        indent += 1;
+      }
+      if (f.type != 'folder') {
         str += '<div id="' + f._id + '" draggable="true"  x-data-path="' + f.path + '" x-data-id="' + f._id + '" x-data-folder="' + folder_id + '" style="margin-left: ' + indent + 'em;" class="liscript" onclick="goScript(this);"><span class="fname">' + f.name + '</span> [<span class="ftype">' + f.filetype + '</span>]</div>';
-    }
+      }
 
-  });
-  str += '</div>';
-  document.getElementById('scriptContainer').innerHTML = str;
-  var liScripts = document.querySelectorAll('.liscript');
-  var liFolders = document.querySelectorAll('.lifolder');
-  liScripts.forEach(function(el) {
-    el.addEventListener('mousedown', function() { elementDragged = true; });
-    el.addEventListener('mouseup', function() { elementDragged = false; });
-    el.addEventListener('dragstart', function(evt) { evt.dataTransfer.setData('text/plain', evt.target.getAttribute('x-data-id')); });
-  });
-  liFolders.forEach(function(el) {
-    el.addEventListener('drop', dropMove);
-    el.addEventListener('dragover', function(e) { e.preventDefault(); });
-    el.addEventListener('mousedown', function() { elementDragged = true; });
-    el.addEventListener('mouseup', function() { elementDragged = false; });
-    el.addEventListener('dragstart', function(evt) { evt.dataTransfer.setData('text/plain', evt.target.getAttribute('x-data-id')); });
-  });
-  resizeIframe();
-  selectPreviouslySelectedScript();
-}
-  parent.pluginHandler.scripttask.newScriptTree = function(message) {
-      scriptTree = message.event.tree;
-      redrawScriptTree();
+    });
+    str += '</div>';
+    document.getElementById('scriptContainer').innerHTML = str;
+    var liScripts = document.querySelectorAll('.liscript');
+    var liFolders = document.querySelectorAll('.lifolder');
+    liScripts.forEach(function (el) {
+      el.addEventListener('mousedown', function () { elementDragged = true; });
+      el.addEventListener('mouseup', function () { elementDragged = false; });
+      el.addEventListener('dragstart', function (evt) { evt.dataTransfer.setData('text/plain', evt.target.getAttribute('x-data-id')); });
+    });
+    liFolders.forEach(function (el) {
+      el.addEventListener('drop', dropMove);
+      el.addEventListener('dragover', function (e) { e.preventDefault(); });
+      el.addEventListener('mousedown', function () { elementDragged = true; });
+      el.addEventListener('mouseup', function () { elementDragged = false; });
+      el.addEventListener('dragstart', function (evt) { evt.dataTransfer.setData('text/plain', evt.target.getAttribute('x-data-id')); });
+    });
+    resizeIframe();
+    selectPreviouslySelectedScript();
   }
-  parent.pluginHandler.scripttask.loadHistory = function(message) {
-      // cache script names
-      var nNames = {};
-      parent.nodes.forEach(function(n){ 
-         nNames[n._id] = n.name; 
-      });
-      if (message.event.nodeHistory != null && message.event.nodeId == parent.currentNode._id) {
-          var nHistTbl = document.getElementById('nHistTbl');
-          var rows = nHistTbl.querySelectorAll('.stNHRow');
-          if (rows.length) {
-              rows.forEach(function(r) {
-                 r.parentNode.removeChild(r); 
-              });
-          }
-          if (message.event.nodeHistory.length) {
-              message.event.nodeHistory.forEach(function(nh) {
-                 nh.latestTime = Math.max(nh.completeTime, nh.queueTime, nh.dispatchTime, nh.dontQueueUntil); 
-              });
-              message.event.nodeHistory.sort((a, b) => (a.latestTime < b.latestTime) ? 1 : -1);
-              message.event.nodeHistory.forEach(function(nh) {
-                  nh = prepHistory(nh);
-                  let tpl = '<td>' + nh.timeStr + '</td> \
+  parent.pluginHandler.scripttask.loadScriptTree = function (message) {
+    scriptTree = message.event.tree;
+    redrawScriptTree();
+  }
+  parent.pluginHandler.scripttask.loadHistory = function (message) {
+    // cache script names
+    var nNames = {};
+    parent.nodes.forEach(function (n) {
+      nNames[n._id] = n.name;
+    });
+    if (message.event.nodeHistory != null && message.event.nodeId == parent.currentNode._id) {
+      var nHistTbl = document.getElementById('nHistTbl');
+      var rows = nHistTbl.querySelectorAll('.stNHRow');
+      if (rows.length) {
+        rows.forEach(function (r) {
+          r.parentNode.removeChild(r);
+        });
+      }
+      if (message.event.nodeHistory.length) {
+        message.event.nodeHistory.forEach(function (nh) {
+          nh.latestTime = Math.max(nh.completeTime, nh.queueTime, nh.dispatchTime, nh.dontQueueUntil);
+        });
+        message.event.nodeHistory.sort((a, b) => (a.latestTime < b.latestTime) ? 1 : -1);
+        message.event.nodeHistory.forEach(function (nh) {
+          nh = prepHistory(nh);
+          let tpl = '<td>' + nh.timeStr + '</td> \
                     <td>' + nh.runBy + '</td> \
                     <td>' + nh.scriptName + '</td> \
                     <td>' + nh.statusTxt + '</td> \
-                    <td>' + nh.returnTxt + '</td>';
-                  let tr = nHistTbl.insertRow(-1);
-                  tr.innerHTML = tpl;
-                  tr.classList.add('stNHRow');
-              });
-          }
+                    <td><pre>' + nh.returnTxt + '</pre></td>';
+          let tr = nHistTbl.insertRow(-1);
+          tr.innerHTML = tpl;
+          tr.classList.add('stNHRow');
+        });
       }
-      var currentScript = document.getElementById('scriptHistory');
-      var currentScriptId = currentScript.getAttribute('x-data-id');
-      if (message.event.scriptHistory != null && message.event.scriptId == currentScriptId) {
-          var sHistTbl = document.getElementById('sHistTbl');
-          var rows = sHistTbl.querySelectorAll('.stSHRow');
-          if (rows.length) {
-              rows.forEach(function(r) {
-                 r.parentNode.removeChild(r); 
-              });
-          }
-          if (message.event.scriptHistory.length) {
-              message.event.scriptHistory.forEach(function(nh) {
-                 nh.latestTime = Math.max(nh.completeTime, nh.queueTime, nh.dispatchTime, nh.dontQueueUntil); 
-              });
-              message.event.scriptHistory.sort((a, b) => (a.latestTime < b.latestTime) ? 1 : -1);
-              message.event.scriptHistory.forEach(function(nh) {
-                  nh = prepHistory(nh);
-                  let tpl = '<td>' + nh.timeStr + '</td> \
+    }
+    var currentScript = document.getElementById('scriptHistory');
+    var currentScriptId = currentScript.getAttribute('x-data-id');
+    if (message.event.scriptHistory != null && message.event.scriptId == currentScriptId) {
+      var sHistTbl = document.getElementById('sHistTbl');
+      var rows = sHistTbl.querySelectorAll('.stSHRow');
+      if (rows.length) {
+        rows.forEach(function (r) {
+          r.parentNode.removeChild(r);
+        });
+      }
+      if (message.event.scriptHistory.length) {
+        message.event.scriptHistory.forEach(function (nh) {
+          nh.latestTime = Math.max(nh.completeTime, nh.queueTime, nh.dispatchTime, nh.dontQueueUntil);
+        });
+        message.event.scriptHistory.sort((a, b) => (a.latestTime < b.latestTime) ? 1 : -1);
+        message.event.scriptHistory.forEach(function (nh) {
+          nh = prepHistory(nh);
+          let tpl = '<td>' + nh.timeStr + '</td> \
                     <td>' + nh.runBy + '</td> \
                     <td>' + nNames[nh.node] + '</td> \
                     <td>' + nh.statusTxt + '</td> \
-                    <td>' + nh.returnTxt + '</td>';
-                  let tr = sHistTbl.insertRow(-1);
-                  tr.innerHTML = tpl;
-                  tr.classList.add('stSHRow');
-              });
-          }
+                    <td><pre>' + nh.returnTxt + '</pre></td>';
+          let tr = sHistTbl.insertRow(-1);
+          tr.innerHTML = tpl;
+          tr.classList.add('stSHRow');
+        });
       }
-      resizeIframe();
+    }
+    resizeIframe();
   }
   function prepHistory(nh) {
-      var nowTime = Math.floor(new Date() / 1000);
-      var d = new Date(0);
-      d.setUTCSeconds(nh.latestTime);
-      nh.timeStr = d.toLocaleString();
-      if (nh.errorVal != null) { nh.returnTxt = nh.errorVal; } else { nh.returnTxt = nh.returnVal; }
-      nh.statusTxt = 'Queued';
-      if (nh.dispatchTime != null) nh.statusTxt = 'Running';
-      if (nh.errorVal != null) nh.statusTxt = 'Error';
-      if (nh.returnVal != null) nh.statusTxt = 'Completed';
-      if (nh.dontQueueUntil > nowTime) nh.statusTxt = 'Scheduled'; 
-      if (nh.returnTxt == null) nh.returnTxt = '&nbsp;';
-      if (nh.statusTxt == 'Completed') {
-          nh.statusTxt = '<span title="Completed ' + secondsToHms((nh.completeTime - nh.dispatchTime)) + '">' + nh.statusTxt + '</span>';
+    var nowTime = Math.floor(new Date() / 1000);
+    var d = new Date(0);
+    d.setUTCSeconds(nh.latestTime);
+    nh.timeStr = d.toLocaleString();
+    if (nh.errorVal != null) { nh.returnTxt = nh.errorVal; } else { nh.returnTxt = nh.returnVal; }
+    nh.statusTxt = 'Queued';
+    if (nh.dispatchTime != null) nh.statusTxt = 'Running';
+    if (nh.errorVal != null) nh.statusTxt = 'Error';
+    if (nh.returnVal != null) nh.statusTxt = 'Completed';
+    if (nh.dontQueueUntil > nowTime) nh.statusTxt = 'Scheduled';
+    if (nh.returnTxt == null) nh.returnTxt = '&nbsp;';
+    if (nh.statusTxt == 'Completed') {
+      nh.statusTxt = '<span title="Completed ' + secondsToHms((nh.completeTime - nh.dispatchTime)) + '">' + nh.statusTxt + '</span>';
+    }
+    if (isJsonString(nh.returnTxt)) {
+      try {
+        nh.returnObj = JSON.parse(nh.returnTxt);
+        nh.returnTxt = 'Object: ';
+        nh.returnTxt += '' + JSON.stringify(nh.returnObj, null, 2);
+        nh.returnTxt = nh.returnTxt.replace(/\n\s*\n/g, '\n');
+        nh.returnTxt = nh.returnTxt.replace(/(?:\r\n|\r|\n)/g, '<br />');
+      } catch (e) { }
+    } else {
+      if (typeof nh.returnTxt == 'string') {
+        nh.returnTxt = nh.returnTxt.replace(/\n\s*\n/g, '\n');
+        nh.returnTxt = nh.returnTxt.replace(/(?:\r\n|\r|\n)/g, '<br />');
       }
-      if (isJsonString(nh.returnTxt)) {
-          try {
-              nh.returnObj = JSON.parse(nh.returnTxt);
-              nh.returnTxt = 'Object: ';
-              nh.returnTxt += '' + JSON.stringify(nh.returnObj, null, 2);
-              nh.returnTxt = nh.returnTxt.replace(/\n\s*\n/g, '\n');
-              nh.returnTxt = nh.returnTxt.replace(/(?:\r\n|\r|\n)/g, '<br />');
-          } catch(e) { }
-      } else {
-          if (typeof nh.returnTxt == 'string') {
-              nh.returnTxt = nh.returnTxt.replace(/\n\s*\n/g, '\n');
-              nh.returnTxt = nh.returnTxt.replace(/(?:\r\n|\r|\n)/g, '<br />');
-          }
-      }
-      return nh;
+    }
+    return nh;
   }
-  parent.pluginHandler.scripttask.loadVariables = function(message) {
-      if (message.event.vars.length) {
-          var vars = message.event.vars;
-          vars.forEach(function(vd) {
-              switch (vd.scope) {
-                  case 'global':
-                      vd.scopeTargetTxt = vd.scopeTargetHtml = 'N/A';
-                  break;
-                  case 'script':
-                      var s = scriptTree.filter(obj => { return obj._id === vd.scopeTarget })[0]
-                      vd.scopeTargetHtml = '<span title="' + s.path + '">' + s.name + '</span>';
-                      vd.scopeTargetTxt = s.name;
-                  break;
-                  case 'mesh':
-                      vd.scopeTargetTxt = vd.scopeTargetHtml = parent.meshes[vd.scopeTarget].name;
-                  break;
-                  case 'node':
-                      var n = parent.nodes.filter(obj => { return obj._id === vd.scopeTarget })[0]
-                      vd.scopeTargetHtml = '<span title="' + n.meshnamel + '">' + n.name + '</span>';
-                      vd.scopeTargetTxt = n.name;
-                  break;
-                  default:
-                      vd.scopeTargetTxt = vd.scopeTargetHtml = 'N/A';
-                  break;
-              }
-              vd.scopeTxt = varScopes[vd.scope];
-          })
-          var ordering = { 'global': 0, 'script': 1, 'mesh': 2, 'node': 3 }
-          vars.sort((a, b) => {
-              return (ordering[a.scope] - ordering[b.scope]) 
-                || a.name.localeCompare(b.name)
-                || a.scopeTargetTxt.localeCompare(b.scopeTargetTxt);
-          });
-          variables = vars;
-          parseVariables();
-      }
+  parent.pluginHandler.scripttask.loadVariables = function (message) {
+    if (message.event.vars.length) {
+      var vars = message.event.vars;
+      vars.forEach(function (vd) {
+        switch (vd.scope) {
+          case 'global':
+            vd.scopeTargetTxt = vd.scopeTargetHtml = 'N/A';
+            break;
+          case 'script':
+            var s = scriptTree.filter(obj => { return obj._id === vd.scopeTarget })[0]
+            if (s === undefined) { return; }
+            vd.scopeTargetHtml = '<span title="' + s.path + '">' + s.name + '</span>';
+            vd.scopeTargetTxt = s.name;
+            break;
+          case 'mesh':
+            vd.scopeTargetTxt = vd.scopeTargetHtml = parent.meshes[vd.scopeTarget].name;
+            break;
+          case 'node':
+            var n = parent.nodes.filter(obj => { return obj._id === vd.scopeTarget })[0]
+            if (n === undefined) {
+              console.log("No existe el nodo " + vd.scopeTarget);
+              parent.meshserver.send({ action: 'plugin', plugin: 'scripttask', pluginaction: 'deleteVar', id: vd._id, currentNodeId: parent.currentNode._id });
+              vd = null;
+              return;
+            }
+            vd.scopeTargetHtml = '<span title="' + n.meshnamel + '">' + n.name + '</span>';
+            vd.scopeTargetTxt = n.name;
+            break;
+          default:
+            vd.scopeTargetTxt = vd.scopeTargetHtml = 'N/A';
+            break;
+        }
+        vd.scopeTxt = varScopes[vd.scope];
+      })
+      var ordering = { 'global': 0, 'script': 1, 'mesh': 2, 'node': 3 }
+      vars.sort((a, b) => {
+        return (ordering[a.scope] - ordering[b.scope])
+          || a.name.localeCompare(b.name)
+          || a.scopeTargetTxt.localeCompare(b.scopeTargetTxt);
+      });
+      variables = vars;
+      parseVariables();
+    }
   }
   function parseVariables() {
-      var vTbl = document.getElementById('varTbl');
-      var rows = vTbl.querySelectorAll('.stVRow');
-      
-      if (rows.length) {
-          rows.forEach(function(r) {
-             r.parentNode.removeChild(r); 
-          });
-      }
-      var scriptEl = document.querySelectorAll('.liselected');
-      if (scriptEl.length != 1) return;
-      var el = scriptEl[0];
-      scopeTargetScriptId = el.getAttribute('x-data-id');
-      variables.forEach(function(vd) {
-          if (vd.scope == 'script' && vd.scopeTarget != scopeTargetScriptId) return;
-          if (vd.scope == 'mesh' && vd.scopeTarget != parent.currentNode.meshid) return;
-          if (vd.scope == 'node' && vd.scopeTarget != parent.currentNode._id) return;
-          let actionHtml = '<span class="flink" onclick="editVar(this);">Edit</span> <span class="flink" onclick="delVar(this);">Delete</span>';
-          let tpl = '<td>' + vd.name + '</td> \
+    var vTbl = document.getElementById('varTbl');
+    var rows = vTbl.querySelectorAll('.stVRow');
+
+    if (rows.length) {
+      rows.forEach(function (r) {
+        r.parentNode.removeChild(r);
+      });
+    }
+    var scriptEl = document.querySelectorAll('.liselected');
+    if (scriptEl.length != 1) return;
+    var el = scriptEl[0];
+    scopeTargetScriptId = el.getAttribute('x-data-id');
+    variables.forEach(function (vd) {
+      if (vd === null) return;
+      if (vd.scope == 'script' && vd.scopeTarget != scopeTargetScriptId) return;
+      if (vd.scope == 'mesh' && vd.scopeTarget != parent.currentNode.meshid) return;
+      if (vd.scope == 'node' && vd.scopeTarget != parent.currentNode._id) return;
+      let actionHtml = '<a href="#" class="btn btn-primary btn-xs" onclick="editVar(this);">Edit</a> <a href="#" class="btn btn-primary btn-xs" onclick="delVar(this);">Delete</a>';
+      let tpl = '<td>' + vd.name + '</td> \
             <td>' + vd.value + '</td> \
             <td>' + vd.scopeTxt + '</td> \
             <td>' + vd.scopeTargetHtml + '</td> \
             <td>' + actionHtml + '</td>';
-          let tr = vTbl.insertRow(-1);
-          tr.innerHTML = tpl;
-          tr.classList.add('stVRow');
-          tr.setAttribute('x-data-id', vd._id);
-      })
+      let tr = vTbl.insertRow(-1);
+      tr.innerHTML = tpl;
+      tr.classList.add('stVRow');
+      tr.setAttribute('x-data-id', vd._id);
+    })
   }
-  parent.pluginHandler.scripttask.loadSchedule = function(message) {
-      // cache script names
-      var nNames = {}, sNames = {};
-      parent.nodes.forEach(function(n){ 
-         nNames[n._id] = n.name; 
-      });
-      scriptTree.forEach(function(s) {
-         if (s.type == 'script') sNames[s._id] = s.name;
-      });
-      if (message.event.nodeSchedule != null && message.event.nodeId == parent.currentNode._id) {
-          var nTbl = document.getElementById('nSchTbl');
-          var rows = nTbl.querySelectorAll('.stNSRow');
-          if (rows.length) {
-              rows.forEach(function(r) {
-                 r.parentNode.removeChild(r); 
-              });
-          }
-          if (message.event.nodeSchedule.length) {
-              message.event.nodeSchedule.forEach(function(nh) {
-                  nh = prepSchedule(nh);
-                  let tpl = '<td>' + sNames[nh.scriptId] + '</td> \
+  parent.pluginHandler.scripttask.loadSchedule = function (message) {
+    // cache script names
+    var nNames = {}, sNames = {};
+    parent.nodes.forEach(function (n) {
+      nNames[n._id] = n.name;
+    });
+    scriptTree.forEach(function (s) {
+      if (s.type == 'script') sNames[s._id] = s.name;
+    });
+    if (message.event.nodeSchedule != null && message.event.nodeId == parent.currentNode._id) {
+      var nTbl = document.getElementById('nSchTbl');
+      var rows = nTbl.querySelectorAll('.stNSRow');
+      if (rows.length) {
+        rows.forEach(function (r) {
+          r.parentNode.removeChild(r);
+        });
+      }
+      if (message.event.nodeSchedule.length) {
+        message.event.nodeSchedule.forEach(function (nh) {
+          nh = prepSchedule(nh);
+          let tpl = '<td>' + sNames[nh.scriptId] + '</td> \
                     <td>' + nh.scheduledBy + '</td> \
                     <td>' + nh.everyTxt + '</td> \
                     <td>' + nh.startedTxt + '</td> \
@@ -682,27 +869,28 @@ function redrawScriptTree() {
                     <td>' + nh.lastRunTxt + '</td> \
                     <td>' + nh.nextRunTxt + '</td> \
                     <td>' + nh.actionTxt + '</td>';
-                  let tr = nTbl.insertRow(-1);
-                  tr.innerHTML = tpl;
-                  tr.classList.add('stNSRow');
-                  tr.setAttribute('x-data-id', nh._id);
-              });
-          }
+          let tr = nTbl.insertRow(-1);
+          tr.innerHTML = tpl;
+          tr.classList.add('stNSRow');
+          tr.setAttribute('x-data-id', nh._id);
+        });
       }
-      var currentScript = document.getElementById('scriptHistory');
-      var currentScriptId = currentScript.getAttribute('x-data-id');
-      if (message.event.scriptSchedule != null && message.event.scriptId == currentScriptId) {
-          var sTbl = document.getElementById('sSchTbl');
-          var rows = sTbl.querySelectorAll('.stSSRow');
-          if (rows.length) {
-              rows.forEach(function(r) {
-                 r.parentNode.removeChild(r); 
-              });
-          }
-          if (message.event.scriptSchedule.length) {
-              message.event.scriptSchedule.forEach(function(nh) {
-                  nh = prepSchedule(nh);
-                  let tpl = '<td>' + nNames[nh.node] + '</td> \
+    }
+
+    var currentScript = document.getElementById('scriptHistory');
+    var currentScriptId = currentScript.getAttribute('x-data-id');
+    if (message.event.scriptSchedule != null && message.event.scriptId == currentScriptId) {
+      var sTbl = document.getElementById('sSchTbl');
+      var rows = sTbl.querySelectorAll('.stSSRow');
+      if (rows.length) {
+        rows.forEach(function (r) {
+          r.parentNode.removeChild(r);
+        });
+      }
+      if (message.event.scriptSchedule.length) {
+        message.event.scriptSchedule.forEach(function (nh) {
+          nh = prepSchedule(nh);
+          let tpl = '<td>' + nNames[nh.node] + '</td> \
                     <td>' + nh.scheduledBy + '</td> \
                     <td>' + nh.everyTxt + '</td> \
                     <td>' + nh.startedTxt + '</td> \
@@ -710,72 +898,72 @@ function redrawScriptTree() {
                     <td>' + nh.lastRunTxt + '</td> \
                     <td>' + nh.nextRunTxt + '</td> \
                     <td>' + nh.actionTxt + '</td>';
-                  let tr = sTbl.insertRow(-1);
-                  tr.innerHTML = tpl;
-                  tr.classList.add('stSSRow');
-                  tr.setAttribute('x-data-id', nh._id);
-              });
-          }
+          let tr = sTbl.insertRow(-1);
+          tr.innerHTML = tpl;
+          tr.classList.add('stSSRow');
+          tr.setAttribute('x-data-id', nh._id);
+        });
       }
-      resizeIframe();
+    }
+    resizeIframe();
   }
   function prepSchedule(nh) {
-      nh.everyTxt = nh.interval + ' ';
-      switch (nh.recur) {
-          case 'once':
-            nh.everyTxt = 'Once';
-          break;
-          case 'minutes':
-            nh.everyTxt += 'minute';
-          break;
-          case 'hourly':
-            nh.everyTxt += 'hour';
-          break;
-          case 'daily':
-            nh.everyTxt += 'day';
-          break;
-          case 'weekly':
-            nh.everyTxt += 'week';
-          break;
-          case 'monthly':
-            nh.everyTxt += 'month';
-          break;
-      }
-      if (nh.interval > 1) nh.everyTxt += 's';
-      
-      if (nh.recur == 'weekly') {
-          nh.daysOfWeek = nh.daysOfWeek.map(el => Number(el));
-          nh.everyTxt += ' (';
-          nh.daysOfWeek.forEach(function(num) {
-              switch(num) {
-                  case 0: nh.everyTxt += 'S'; break;
-                  case 1: nh.everyTxt += 'M'; break;
-                  case 2: nh.everyTxt += 'T'; break;
-                  case 3: nh.everyTxt += 'W'; break;
-                  case 4: nh.everyTxt += 'R'; break;
-                  case 5: nh.everyTxt += 'F'; break;
-                  case 6: nh.everyTxt += 'S'; break;
-              }
-          });
-          nh.everyTxt += ')';
-      }
-      
-      var d = new Date(0); d.setUTCSeconds(nh.startAt);
-      nh.startedTxt = d.toLocaleString();
-      d = new Date(0); d.setUTCSeconds(nh.endAt);
-      nh.endingTxt = d.toLocaleString();
-      if (nh.endAt == null) nh.endingTxt = 'Never';
-      if (nh.recur == 'once') nh.endingTxt = 'After first run';
-      d = new Date(0); d.setUTCSeconds(nh.lastRun);
-      nh.lastRunTxt = d.toLocaleString();
-      if (nh.lastRun == null) nh.lastRunTxt = 'Never';
-      d = new Date(0); d.setUTCSeconds(nh.nextRun);
-      nh.nextRunTxt = d.toLocaleString();
-      if (nh.nextRun == null) nh.nextRunTxt = 'Never';
-      if (nh.nextRun < nh.lastRun) nh.nextRunTxt = 'Running now';
-      
-      nh.actionTxt = '<span class="delSched" onclick="deleteSchedule(this);">Delete</span>';
-      return nh;
+    nh.everyTxt = nh.interval + ' ';
+    switch (nh.recur) {
+      case 'once':
+        nh.everyTxt = 'Once';
+        break;
+      case 'minutes':
+        nh.everyTxt += 'minute';
+        break;
+      case 'hourly':
+        nh.everyTxt += 'hour';
+        break;
+      case 'daily':
+        nh.everyTxt += 'day';
+        break;
+      case 'weekly':
+        nh.everyTxt += 'week';
+        break;
+      case 'monthly':
+        nh.everyTxt += 'month';
+        break;
+    }
+    if (nh.interval > 1) nh.everyTxt += 's';
+
+    if (nh.recur == 'weekly') {
+      nh.daysOfWeek = nh.daysOfWeek.map(el => Number(el));
+      nh.everyTxt += ' (';
+      nh.daysOfWeek.forEach(function (num) {
+        switch (num) {
+          case 0: nh.everyTxt += 'S'; break;
+          case 1: nh.everyTxt += 'M'; break;
+          case 2: nh.everyTxt += 'T'; break;
+          case 3: nh.everyTxt += 'W'; break;
+          case 4: nh.everyTxt += 'R'; break;
+          case 5: nh.everyTxt += 'F'; break;
+          case 6: nh.everyTxt += 'S'; break;
+        }
+      });
+      nh.everyTxt += ')';
+    }
+
+    var d = new Date(0); d.setUTCSeconds(nh.startAt);
+    nh.startedTxt = d.toLocaleString();
+    d = new Date(0); d.setUTCSeconds(nh.endAt);
+    nh.endingTxt = d.toLocaleString();
+    if (nh.endAt == null) nh.endingTxt = 'Never';
+    if (nh.recur == 'once') nh.endingTxt = 'After first run';
+    d = new Date(0); d.setUTCSeconds(nh.lastRun);
+    nh.lastRunTxt = d.toLocaleString();
+    if (nh.lastRun == null) nh.lastRunTxt = 'Never';
+    d = new Date(0); d.setUTCSeconds(nh.nextRun);
+    nh.nextRunTxt = d.toLocaleString();
+    if (nh.nextRun == null) nh.nextRunTxt = 'Never';
+    if (nh.nextRun < nh.lastRun) nh.nextRunTxt = 'Running now';
+
+    nh.actionTxt = '<span class="delSched btn btn-danger btn-xs" onclick="deleteSchedule(this);">Delete</span>';
+    return nh;
   }
   function secondsToHms(d) {
     d = Number(d);
@@ -787,77 +975,77 @@ function redrawScriptTree() {
     var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : "";
     var mDisplay = m > 0 ? m + (m == 1 ? " minute, " : " minutes, ") : "";
     var sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : "";
-    return "in " + hDisplay + mDisplay + sDisplay; 
+    return "in " + hDisplay + mDisplay + sDisplay;
   }
   function isJsonString(str) {
     try {
-        JSON.parse(str);
+      JSON.parse(str);
     } catch (e) {
-        return false;
+      return false;
     }
     return true;
   }
   function newVarEx() {
-      var name = parent.document.getElementById('stvarname').value;
-      var scope = parent.document.getElementById('stvarscope').value;
-      var value = parent.document.getElementById('stvarvalue').value;
-      var scopeTarget = null;
-      if (scope == 'script') {
-          var scriptEl = document.querySelectorAll('.liselected');
-          if (scriptEl.length != 1) return;
-          var el = scriptEl[0];
-          scopeTarget = el.getAttribute('x-data-id');
-      } else if (scope == 'mesh') {
-          scopeTarget = parent.currentNode.meshid;
-      } else if (scope == 'node') {
-          scopeTarget = parent.currentNode._id;
-      }
-      parent.meshserver.send({ action: 'plugin', plugin: 'scripttask', pluginaction: 'newVar', name: name, scope: scope, scopeTarget: scopeTarget, value: value, currentNodeId: parent.currentNode._id });
+    var name = parent.document.getElementById('stvarname').value;
+    var scope = parent.document.getElementById('stvarscope').value;
+    var value = parent.document.getElementById('stvarvalue').value;
+    var scopeTarget = null;
+    if (scope == 'script') {
+      var scriptEl = document.querySelectorAll('.liselected');
+      if (scriptEl.length != 1) return;
+      var el = scriptEl[0];
+      scopeTarget = el.getAttribute('x-data-id');
+    } else if (scope == 'mesh') {
+      scopeTarget = parent.currentNode.meshid;
+    } else if (scope == 'node') {
+      scopeTarget = parent.currentNode._id;
+    }
+    parent.meshserver.send({ action: 'plugin', plugin: 'scripttask', pluginaction: 'newVar', name: name, scope: scope, scopeTarget: scopeTarget, value: value, currentNodeId: parent.currentNode._id });
 
   }
   function newVar() {
-      parent.setDialogMode(2, "New Variable", 3, newVarEx, 'Variable Name: <input type="text" id=stvarname /><br />Scope: <select id=stvarscope><option value="global">Global</option><option value="script">Script</option><option value="mesh">Mesh</option><option value="node">Node</option></select><br />Value: <input id="stvarvalue" type="text" />'); 
-      parent.focusTextBox('stvarname');
+    parent.setDialogMode(2, "New Variable", 3, newVarEx, 'Variable Name: <input type="text" id=stvarname /><br />Scope: <select id=stvarscope><option value="global">Global</option><option value="script">Script</option><option value="mesh">Mesh</option><option value="node">Node</option></select><br />Value: <input id="stvarvalue" type="text" />');
+    parent.focusTextBox('stvarname');
   }
   function editVarEx() {
-      var varid = parent.document.getElementById('stvarid').value;
-      var name = parent.document.getElementById('stvarname').value;
-      var scope = parent.document.getElementById('stvarscope').value;
-      var value = parent.document.getElementById('stvarvalue').value;
-      var scopeTarget = null;
-      if (scope == 'script') {
-          var scriptEl = document.querySelectorAll('.liselected');
-          if (scriptEl.length != 1) return;
-          var el = scriptEl[0];
-          scopeTarget = el.getAttribute('x-data-id');
-      } else if (scope == 'mesh') {
-          scopeTarget = parent.currentNode.meshid;
-      } else if (scope == 'node') {
-          scopeTarget = parent.currentNode._id;
-      }
-      parent.meshserver.send({ action: 'plugin', plugin: 'scripttask', pluginaction: 'editVar', id: varid, name: name, scope: scope, scopeTarget: scopeTarget, value: value, currentNodeId: parent.currentNode._id });
+    var varid = parent.document.getElementById('stvarid').value;
+    var name = parent.document.getElementById('stvarname').value;
+    var scope = parent.document.getElementById('stvarscope').value;
+    var value = parent.document.getElementById('stvarvalue').value;
+    var scopeTarget = null;
+    if (scope == 'script') {
+      var scriptEl = document.querySelectorAll('.liselected');
+      if (scriptEl.length != 1) return;
+      var el = scriptEl[0];
+      scopeTarget = el.getAttribute('x-data-id');
+    } else if (scope == 'mesh') {
+      scopeTarget = parent.currentNode.meshid;
+    } else if (scope == 'node') {
+      scopeTarget = parent.currentNode._id;
+    }
+    parent.meshserver.send({ action: 'plugin', plugin: 'scripttask', pluginaction: 'editVar', id: varid, name: name, scope: scope, scopeTarget: scopeTarget, value: value, currentNodeId: parent.currentNode._id });
   }
   function editVar(el) {
-      var vid = el.parentNode.parentNode.getAttribute('x-data-id');
-      var v = variables.filter(obj => { return obj._id === vid })[0];
-      var soptHtml = '';
-      for (const [k, t] of Object.entries(varScopes)) {
-          soptHtml += '<option value="' + k + '"';
-          if (v.scope == k) soptHtml += ' selected';
-          soptHtml += '>' + t + '</option>';
-      }
-      parent.setDialogMode(2, "Edit Variable", 3, editVarEx, 'Variable Name: <input type="text" id=stvarname value="' + v.name + '" /><br />Scope: <select id=stvarscope>' + soptHtml + '</select><br />Value: <input id="stvarvalue" type="text" value="' + v.value + '" /><input type="hidden" id="stvarid" value="' + vid + '" />'); 
-      parent.focusTextBox('stvarname');
+    var vid = el.parentNode.parentNode.getAttribute('x-data-id');
+    var v = variables.filter(obj => { return obj._id === vid })[0];
+    var soptHtml = '';
+    for (const [k, t] of Object.entries(varScopes)) {
+      soptHtml += '<option value="' + k + '"';
+      if (v.scope == k) soptHtml += ' selected';
+      soptHtml += '>' + t + '</option>';
+    }
+    parent.setDialogMode(2, "Edit Variable", 3, editVarEx, 'Variable Name: <input type="text" id=stvarname value="' + v.name + '" /><br />Scope: <select id=stvarscope>' + soptHtml + '</select><br />Value: <input id="stvarvalue" type="text" value="' + v.value + '" /><input type="hidden" id="stvarid" value="' + vid + '" />');
+    parent.focusTextBox('stvarname');
   }
   function delVarEx() {
-      var varid = parent.document.getElementById('stvarid').value;
-      parent.meshserver.send({ action: 'plugin', plugin: 'scripttask', pluginaction: 'deleteVar', id: varid, currentNodeId: parent.currentNode._id });
+    var varid = parent.document.getElementById('stvarid').value;
+    parent.meshserver.send({ action: 'plugin', plugin: 'scripttask', pluginaction: 'deleteVar', id: varid, currentNodeId: parent.currentNode._id });
 
   }
   function delVar(el) {
-      var vid = el.parentNode.parentNode.getAttribute('x-data-id');
-      var v = variables.filter(obj => { return obj._id === vid })[0];
-      parent.setDialogMode(2, "Delete Variable", 3, delVarEx, 'Are you sure you want to delete this?<input type="hidden" id="stvarid" value="' + vid + '" /><br />Name: '+ v.name +'<br />Scope: '+ varScopes[v.scope] +'<br />Value: '+ v.value); 
+    var vid = el.parentNode.parentNode.getAttribute('x-data-id');
+    var v = variables.filter(obj => { return obj._id === vid })[0];
+    parent.setDialogMode(2, "Delete Variable", 3, delVarEx, 'Are you sure you want to delete this?<input type="hidden" id="stvarid" value="' + vid + '" /><br />Name: ' + v.name + '<br />Scope: ' + varScopes[v.scope] + '<br />Value: ' + v.value);
   }
   function renameEx() {
     var name = parent.document.getElementById('stfilename').value;
@@ -870,7 +1058,7 @@ function redrawScriptTree() {
     var el = scriptEl[0];
     var name = el.querySelector('.fname').innerHTML;
     var id = el.getAttribute('x-data-id');
-    parent.setDialogMode(2, "Rename " + name, 3, renameEx, '<input type="text"  value="' + name + '" id=stfilename style=width:100% /><input type="hidden" id="stid" value="' + id + '" />'); 
+    parent.setDialogMode(2, "Rename " + name, 3, renameEx, '<input type="text"  value="' + name + '" id=stfilename style=width:100% /><input type="hidden" id="stid" value="' + id + '" />');
     parent.focusTextBox('stfilename');
   }
   function newEx() {
@@ -883,10 +1071,10 @@ function redrawScriptTree() {
     var scriptEl = document.querySelectorAll('.liselected');
     var folder_id = null;
     if (scriptEl.length > 0) {
-        var el = scriptEl[0];
-        folder_id = el.getAttribute('x-data-folder');
+      var el = scriptEl[0];
+      folder_id = el.getAttribute('x-data-folder');
     }
-    parent.setDialogMode(2, "New Script", 3, newEx, 'Name: <input type="text"  value="' + name + '" id=stfilename style=width:100% /><br />Type:<select id="stfiletype"><option value="bash">Bash</option><option value="bat">BAT</option><option value="ps1">PS1</option></select><input type="hidden" id="stfolderid" value="' + folder_id + '" />'); 
+    parent.setDialogMode(2, "New Script", 3, newEx, 'Name: <input type="text"  value="' + name + '" id=stfilename style=width:100% /><br />Type:<select id="stfiletype"><option value="bash">Bash</option><option value="bat">BAT</option><option value="ps1">PS1</option></select><input type="hidden" id="stfolderid" value="' + folder_id + '" />');
     parent.focusTextBox('stfilename');
   }
   function newFolderEx() {
@@ -901,20 +1089,20 @@ function redrawScriptTree() {
       var el = scriptEl[0];
       folder_id = el.getAttribute('x-data-folder');
     }
-    parent.setDialogMode(2, "New Folder", 3, newFolderEx, '<input type="text"  value="" id=stfoldername style=width:100% /><input type="hidden" id="stfolderid" value="' + folder_id + '" />'); 
+    parent.setDialogMode(2, "New Folder", 3, newFolderEx, '<input type="text"  value="" id=stfoldername style=width:100% /><input type="hidden" id="stfolderid" value="' + folder_id + '" />');
     parent.focusTextBox('stfoldername');
   }
   function goScript(el) {
     var xdi = el.getAttribute('x-data-id');
     var scriptEls = document.querySelectorAll('.liselected');
     parent.putstore('_scripttask_sel_item', xdi);
-    scriptEls.forEach(function(e) {
+    scriptEls.forEach(function (e) {
       e.classList.remove('liselected');
     })
     el.classList.add('liselected');
     Q('scriptHistory').setAttribute('x-data-id', el.getAttribute('x-data-id'));
     if (xdi != el.getAttribute('x-data-folder')) {
-        parent.meshserver.send({ action: 'plugin', plugin: 'scripttask', pluginaction: 'loadScriptHistory', scriptId: xdi });
+      parent.meshserver.send({ action: 'plugin', plugin: 'scripttask', pluginaction: 'loadScriptHistory', scriptId: xdi });
     }
     parseVariables();
   }
@@ -928,29 +1116,29 @@ function redrawScriptTree() {
     var el = els[0];
     var name = el.innerHTML;
     var id = el.getAttribute('x-data-id');
-    parent.setDialogMode(2, "Delete " + name, 3, deleteEx, 'Are you sure? <input type="hidden" id="stdelid" value="' + id + '" />'); 
+    parent.setDialogMode(2, "Delete " + name, 3, deleteEx, 'Are you sure? <input type="hidden" id="stdelid" value="' + id + '" />');
   }
   function deleteScheduleEx() {
     var id = parent.document.getElementById('stdelid').value;
     parent.meshserver.send({ action: 'plugin', plugin: 'scripttask', pluginaction: 'delete', id: id });
   }
   function deleteSchedule(el) {
-      var id = el.parentNode.parentNode.getAttribute('x-data-id');
-      parent.setDialogMode(2, "Delete Schedule", 3, deleteScheduleEx, 'Are you sure you want to delete this schedule? <input type="hidden" id="stdelid" value="' + id + '" />'); 
+    var id = el.parentNode.parentNode.getAttribute('x-data-id');
+    parent.setDialogMode(2, "Delete Schedule", 3, deleteScheduleEx, 'Are you sure you want to delete this schedule? <input type="hidden" id="stdelid" value="' + id + '" />');
   }
   function toggleCollapse(el) {
     var xdf = el.getAttribute('x-data-path');
     var folderEls = document.querySelectorAll('.lifolder, .liscript');
     var showHide = null;
-    folderEls.forEach(function(e){
+    folderEls.forEach(function (e) {
       if (e === el) return;
       if (e.getAttribute('x-data-path').indexOf(xdf) !== -1) {
-        if (e.style.display == 'none') { 
+        if (e.style.display == 'none') {
           if (showHide === null) showHide = '';
         } else {
           if (showHide === null) showHide = 'none';
         }
-        e.style.display = showHide; 
+        e.style.display = showHide;
       }
     });
     goScript(el);
@@ -966,7 +1154,7 @@ function redrawScriptTree() {
     if (dragTimer != null) dragTimer = null;
     //document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
   }
-  
+
   function fileUpload(files) {
     if (files == null) files = document.getElementById('files').files;
     var path = null;
@@ -979,8 +1167,8 @@ function redrawScriptTree() {
       var reader = new FileReader();
       reader.fileName = f.name;
       reader.readAsBinaryString(f);
-      reader.addEventListener('loadend', function(e, file){
-          addScript(e.currentTarget.fileName, e.currentTarget.result, path);
+      reader.addEventListener('loadend', function (e, file) {
+        addScript(e.currentTarget.fileName, e.currentTarget.result, path);
       });
     }
   }
@@ -989,34 +1177,35 @@ function redrawScriptTree() {
   var dropBlock = document.getElementById('dropBlock');
   var dragTimer = null;
   function allowDrag(e) {
-      if (!elementDragged) {  // Test that the item being dragged is a valid one
-          e.dataTransfer.dropEffect = 'copy';
-          QV('dropBlock', true);
-          e.preventDefault();
-          clearTimeout(dragTimer);
-          dragTimer = setTimeout(function(){ dragCounter = 0; QV('dropBlock', false); }, 100);
-      }
+    if (!elementDragged) {  // Test that the item being dragged is a valid one
+      e.dataTransfer.dropEffect = 'copy';
+      QV('dropBlock', true);
+      e.preventDefault();
+      clearTimeout(dragTimer);
+      dragTimer = setTimeout(function () { dragCounter = 0; QV('dropBlock', false); }, 100);
+    }
   }
-  
+
   function dropMove(evt) {
     const move_id = evt.dataTransfer.getData('text');
     const container_id = evt.target.parentNode.getAttribute('x-data-id');
     parent.meshserver.send({ action: 'plugin', plugin: 'scripttask', pluginaction: 'move', id: move_id, to: container_id });
   }
   // file upload events
-  window.addEventListener('dragenter', function(e) {
-      dragCounter++;
+  window.addEventListener('dragenter', function (e) {
+    dragCounter++;
   });
   dropZone.addEventListener('dragenter', allowDrag);
   dropZone.addEventListener('dragover', allowDrag);
-  dropZone.addEventListener('dragleave', function(e) {
-      dragCounter--;
-      if (dragCounter == 0) {
-        QV('dropBlock', false);
-        elementDragged = false;
-      }
+  dropZone.addEventListener('dragleave', function (e) {
+    dragCounter--;
+    if (dragCounter == 0) {
+      QV('dropBlock', false);
+      elementDragged = false;
+    }
   });
   dropZone.addEventListener('drop', handleFileSelect);
-  
+
 </script>
+
 </html>
