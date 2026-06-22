@@ -94,6 +94,7 @@ module.exports.scripttask = function (parent) {
                         });
                         replaceVars['GBL:meshId'] = obj.meshServer.webserver.wsagents[job.node]['dbMeshKey'];
                         replaceVars['GBL:nodeId'] = job.node;
+                        replaceVars['GBL:runBy'] = job.runBy || 'unknown';
                         //console.log('FV IS', finvals);
                         //console.log('RV IS', replaceVars);
                     }
