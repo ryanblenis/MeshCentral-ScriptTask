@@ -511,7 +511,8 @@ function redrawScriptTree() {
           }
           if (message.event.nodeHistory.length) {
               message.event.nodeHistory.forEach(function(nh) {
-                 nh.latestTime = Math.max(nh.completeTime, nh.queueTime, nh.dispatchTime, nh.dontQueueUntil); 
+                 //nh.latestTime = Math.max(nh.completeTime, nh.queueTime, nh.dispatchTime, nh.dontQueueUntil); 
+                 nh.latestTime = Math.max(nh.queueTime, nh.dispatchTime, nh.dontQueueUntil);
               });
               message.event.nodeHistory.sort((a, b) => (a.latestTime < b.latestTime) ? 1 : -1);
               message.event.nodeHistory.forEach(function(nh) {
@@ -539,7 +540,8 @@ function redrawScriptTree() {
           }
           if (message.event.scriptHistory.length) {
               message.event.scriptHistory.forEach(function(nh) {
-                 nh.latestTime = Math.max(nh.completeTime, nh.queueTime, nh.dispatchTime, nh.dontQueueUntil); 
+                 //nh.latestTime = Math.max(nh.completeTime, nh.queueTime, nh.dispatchTime, nh.dontQueueUntil); 
+                 nh.latestTime = Math.max(nh.queueTime, nh.dispatchTime, nh.dontQueueUntil);
               });
               message.event.scriptHistory.sort((a, b) => (a.latestTime < b.latestTime) ? 1 : -1);
               message.event.scriptHistory.forEach(function(nh) {

@@ -32,7 +32,8 @@ Restart your MeshCentral server after making this change.
 - Queues are checked / run every minute.
 - Scheduled jobs only show the *next* scheduled job at any given time.
 - History is limited to 200 events per node/script in the viewport.
-- Historical events that have completed will delete after 90 days.
+- Historical events that have completed will delete after 30 days.
+- For mongodb it's even faster cleaning by using the TTL feature to delete completed jobs after 30 days.
 - Jobs only run when the endpoint agent is online. They do *not* queue to the agent when offline, then run at the specified time.
 - Scripts are cached on the clients and verified via hash at runtime for the latest version.
 
