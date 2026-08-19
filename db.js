@@ -251,8 +251,11 @@ module.exports.CreateDB = function(meshserver) {
         obj.checkDefaults();
     };
     
-    if (meshserver.args.mongodb) { // use MongDB
-      require('mongodb').MongoClient.connect(meshserver.args.mongodb, { useNewUrlParser: true, useUnifiedTopology: true }, function (err, client) {
+    // Detect MongoDB mode robustly. The plugin is loaded by pluginHandler in a context
+    // where meshserver.args.mongodb may not be populated, so fall back to the parent.
+    var mongoUrl = meshserver.args.mongodb || (meshserver.parent && meshserver.parent.args && meshserver.parent.args.mongodb);
+    if (mongoUrl) { // use MongoDB
+      require('mongodb').MongoClient.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true }, function (err, client) {
           if (err != null) { console.log("Unable to connect to database: " + err); process.exit(); return; }
           
           var dbname = 'meshcentral';
@@ -292,7 +295,7 @@ module.exports.CreateDB = function(meshserver) {
             if (Datastore == null) { Datastore = require('nedb'); } // So not to break any existing installations, if the old NeDB is present, use it.
         }
         if (obj.scriptFilex == null) {
-            obj.scriptFilex = new Datastore({ filename: meshserver.getConfigFilePath('plugin-scripttask.db'), autoload: true });
+            obj.scriptFilex = new Datastore({ filename: (typeof meshserver.getConfigFilePath === 'function') ? meshserver.getConfigFilePath('plugin-scripttask.db') : require('path').join(meshserver.args.dataPath || '.', 'plugin-scripttask.db'), autoload: true });
             obj.scriptFilex.setAutocompactionInterval(40000);
             obj.scriptFilex.ensureIndex({ fieldName: 'name' });
             obj.scriptFilex.ensureIndex({ fieldName: 'path' });
