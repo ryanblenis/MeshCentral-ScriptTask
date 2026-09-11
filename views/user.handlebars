@@ -363,32 +363,7 @@ function selAllNodes(el) {
   return true;
 }
 
-function bindScriptTaskButtons() {
-  var actions = {
-    new: goNew,
-    rename: goRename,
-    edit: goEdit,
-    delete: goDelete,
-    newFolder: goNewFolder,
-    download: goDownload,
-    run: goRun,
-    advancedRun: goAdvancedRun
-  };
-
-  document.querySelectorAll('[data-st-action]').forEach(function(btn) {
-    if (btn.getAttribute('data-st-bound') == '1') return;
-    btn.setAttribute('data-st-bound', '1');
-    btn.addEventListener('click', function(ev) {
-      ev.preventDefault();
-      ev.stopPropagation();
-      var action = btn.getAttribute('data-st-action');
-      if (actions[action]) actions[action]();
-    });
-  });
-}
-
 function doOnLoad() {
-  bindScriptTaskButtons();
   redrawScriptTree();
   selectPreviouslySelectedScript();
   updateNodesTable();
