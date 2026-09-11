@@ -69,6 +69,12 @@ module.exports.scripttask = function (parent) {
                 obj.db.get(job.scriptId)
                 .then(async (script) => {
                     script = script[0];
+
+                    if (!script || typeof script.content !== 'string') {
+                        console.log('PLUGIN: ScriptTask: Skipping job with missing script content. scriptId=' + job.scriptId + ', node=' + job.node);
+                        return;
+                    }
+
                     var foundVars = script.content.match(/#(.*?)#/g);
                     var replaceVars = {};
                     if (foundVars != null && foundVars.length > 0) {

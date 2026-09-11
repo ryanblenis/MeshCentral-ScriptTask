@@ -37,8 +37,8 @@
 <div id="scriptTaskScriptEdit">
   <div id="scriptNameC">Script Name: <input type="text" value="" id="scriptName"/></div>
   <div id="controlBar">
-    <button onclick="goSave();">Save</button>
-    <button onclick="goClose();">Close</button>
+    <button onclick="goSave(); return false;">Save</button>
+    <button onclick="goClose(); return false;">Cancel</button>
   </div>
   <div id="scriptContentC">
       <textarea id="scriptContent"></textarea>
@@ -57,8 +57,17 @@ function doOnLoad() {
 function goSave() {
     scriptData.content = Q('scriptContent').value;
     scriptData.name = Q('scriptName').value;
-    window.opener.callback(scriptData);
-    //goClose();
+
+    try {
+        if (window.opener && typeof window.opener.callback === 'function') {
+            window.opener.callback(scriptData);
+        } else {
+            alert('Unable to save script: parent callback was not found.');
+            return;
+        }
+    } finally {
+        window.close();
+    }
 }
 
 function goClose() {
