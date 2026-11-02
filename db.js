@@ -85,6 +85,15 @@ module.exports.CreateDB = function(meshserver) {
             id = formatId(id);
             return obj.scriptFile.deleteMany( { type: 'jobSchedule', scriptId: id } );
         };
+        // a deleted script's incomplete jobs would otherwise be retried every minute forever
+        obj.deletePendingJobsForScript = function(id) {
+            id = formatId(id);
+            return obj.scriptFile.deleteMany( { type: 'job', scriptId: id, completeTime: null } );
+        };
+        // the scripts deleteByPath(path) is about to remove
+        obj.getScriptsByPath = function(path) {
+          return obj.scriptFile.find( { type: 'script', path: path }).toArray();
+        };
         obj.getByPath = function(path) {
           return obj.scriptFile.find( { type: { $in: [ 'script', 'folder' ] }, path: path }).toArray();
         };

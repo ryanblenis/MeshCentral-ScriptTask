@@ -371,21 +371,30 @@ module.exports.scripttask = function (parent) {
         return nextTime;
     };
 
+    // Run one makeJobsFromSchedules pass at a time. Its check-then-insert isn't atomic, so two
+    // overlapping passes (e.g. a schedule saved on the minute tick) created duplicate jobs.
+    obj.scheduleChain = Promise.resolve();
     obj.makeJobsFromSchedules = function(scheduleId) {
+        var pass = obj.scheduleChain.then(() => obj.makeJobsFromSchedulesPass(scheduleId));
+        obj.scheduleChain = pass.catch((e) => { console.log('PLUGIN: ScriptTask: Error managing job schedules: ', e); });
+        return pass;
+    };
+
+    obj.makeJobsFromSchedulesPass = function(scheduleId) {
         //obj.debug('ScriptTask', 'makeJobsFromSchedules starting');
         return obj.db.getSchedulesDueForJob(scheduleId)
         .then(schedules => {
             //obj.debug('ScriptTask', 'Found ' + schedules.length + ' schedules to process. Current time is: ' + Math.floor(new Date() / 1000));
             if (schedules.length) {
-                schedules.forEach(s => {
+                return Promise.all(schedules.map(s => {
                     var nextJobTime = obj.determineNextJobTime(s);
                     var nextJobScheduled = false;
                     if (nextJobTime === null) {
                         //obj.debug('ScriptTask', 'Removing Job Schedule for', JSON.stringify(s));
-                        obj.db.removeJobSchedule(s._id);
+                        return obj.db.removeJobSchedule(s._id);
                     } else {
                         //obj.debug('ScriptTask', 'Scheduling Job for', JSON.stringify(s));
-                        obj.db.get(s.scriptId)
+                        return obj.db.get(s.scriptId)
                         .then(scripts => {
                             // if a script is scheduled to run, but a previous run hasn't completed, 
                             // don't schedule another job for the same (device probably offline).
@@ -406,7 +415,7 @@ module.exports.scripttask = function (parent) {
                         })
                         .catch((e) => { console.log('PLUGIN: ScriptTask: Error managing job schedules: ', e); });
                     }
-                });
+                }));
             }
         });
     };
@@ -420,8 +429,12 @@ module.exports.scripttask = function (parent) {
           return file;
         })
         .then((file) => {
-          if (file.type == 'folder') return obj.db.deleteByPath(file.path); //@TODO delete schedules for scripts within folders
-          if (file.type == 'script') return obj.db.deleteSchedulesForScript(file._id);
+          if (file.type == 'folder') { // also remove the contained scripts' schedules and incomplete jobs
+            return obj.db.getScriptsByPath(file.path)
+            .then((scripts) => Promise.all(scripts.map((s) => obj.db.deleteSchedulesForScript(s._id).then(() => obj.db.deletePendingJobsForScript(s._id)))))
+            .then(() => obj.db.deleteByPath(file.path));
+          }
+          if (file.type == 'script') return obj.db.deleteSchedulesForScript(file._id).then(() => obj.db.deletePendingJobsForScript(file._id));
           if (file.type == 'jobSchedule') return obj.db.deletePendingJobsForSchedule(file._id);
         })
         .then(() => {
